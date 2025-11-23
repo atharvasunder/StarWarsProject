@@ -1,7 +1,7 @@
 /**
   ***************************************************************************************************************************
   * @file    global_timer.c 
-  * @author  Group 3
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
   * @brief   Contains global timer, a list to manage time delay requests, and a function to check for timeout events
@@ -12,6 +12,7 @@
 #include "debug_mort.h"
 #include "global_time.h"
 #include "events.h"
+#include "hardware_stm_timer4.h"
 #include <cstdint>
 
 // define global variables
@@ -28,10 +29,10 @@ void increment_time(void){
 }
 
 void init_global_timer(void){
-    ;  // START THE GLOBAL TIMER (TIMER4)
+    initTimer4ToInterrupt(89,999);  // START THE GLOBAL TIMER (TIMER4) with PSC 89, ARR 999 to get a update every millisecond
 }
 
-// Add a delay object at the end of the list
+// To add a delay object at the end of the list 
 void insertDelayToList(uint16_t timernumber,
                            double timeouttime,
                            double t0_ms)
@@ -51,7 +52,7 @@ void insertDelayToList(uint16_t timernumber,
     delay_list.startoflist = 0;
 }
 
-// Delete delay object at given index (0 <= index < sizeoflist)
+// To delete delay object at given index (0 <= index < sizeoflist)
 void deleteDelayTimerFromList(uint16_t index)
 {
     if (index >= delay_list.sizeoflist) {
@@ -88,6 +89,10 @@ void timeoutCheck(void)
 
     index = delay_list.startoflist; // (always zero for us)
 
+    // loop through list of delay reqauest data structures
+    // check all of them if they have timed out
+    // if any of them timed out, create a timeout event 
+    // marking the end of that request 
     for (int i = 0; i < delay_list.sizeoflist; i++)
     {
 
@@ -110,7 +115,3 @@ void timeoutCheck(void)
         index = index + 1;
     }
 }
-
-
-// initialize any timer that updates every ms, with an interrupt triggered when there is a update event
-// in the interrupt service routine, keep incrementing the variable

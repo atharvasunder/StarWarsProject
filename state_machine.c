@@ -10,8 +10,6 @@
 
 #include "events.h"
 #include "state_machine.h"
-#include "led_utils.h"
-#include "hardware_stm_gpio.h"
 #include "stdint.h"
 #include "debug_mort.h"
 #include "global_time.h"
@@ -284,34 +282,4 @@ void state_machine(event newevent){
 
             }
     }
-}
-
-
-// THIS IS MY LAB4 FUNCTION, YOU CAN DELETE THIS @DAVID
-void get_gummy_colour(float led_response[3]){
-
-    float red_LED_response = led_response[0];
-    float green_led_response = led_response[1];
-    float blue_led_response = led_response[2];
-
-    uint16_t gummy = 5; // will stay 5 if none of the conditions are met
-
-    if (red_LED_response == 1 && green_led_response == 1 && blue_led_response == 1){
-        gummy = 3;  // colourless allows all colours
-    }
-
-    else if (red_LED_response == 1 && green_led_response == 1 && blue_led_response == 0){
-        gummy = 2;  // orange does not alow blue colour
-    }
-
-    else if (red_LED_response == 0 && green_led_response == 1 && blue_led_response == 0){
-        gummy = 1;  // green does not allow red and blue colour
-    }
-
-    else if (red_LED_response == 1 && green_led_response == 0 && blue_led_response == 0){
-        gummy = 0;  // red does not allow green and blue colour
-    }
-
-    printgummycolour(gummy);
-
 }

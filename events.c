@@ -1,16 +1,15 @@
 /**
   ******************************************************************************
   * @file    led_events.c 
-  * @author  Group 3
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
-  * @brief   Contains service functions for the LED queue
+  * @brief   Contains functions to manipulate and service the events queue
   ******************************************************************************
 */
 
 #include "events.h"
 #include "state_machine.h"
-#include "led_utils.h"
 #include "stdint.h"
 #include "debug_mort.h"
 #include <stdbool.h>

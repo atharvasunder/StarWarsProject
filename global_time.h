@@ -24,17 +24,18 @@ Contains microcontroller specific macros and function definitions for use in thi
 
 /* Macros related to software timer and timer queues--------------------------------------------------------*/
 typedef struct {
-    double timeouttime;
+    double timeouttime; // duration of time delay
     double t0;  // start time of timeout
     uint16_t timernumber;   // one for each device that calls the timer (as different devices require different timeouts)
 } Delay;
 
-#define MAX_TIME_DELAY_REQUESTS 100   // define max no of time delay requests that can be on the queue at a time
+#define MAX_TIME_DELAY_REQUESTS 100   // define max no of time delay requests that can be on the list at a time
 
+// data structure for storing delay requests
 typedef struct {
     Delay list[MAX_TIME_DELAY_REQUESTS];  // array of active delay requests
-    uint16_t sizeoflist;       // index of first timer
-    uint16_t startoflist;              // how many timers are active
+    uint16_t sizeoflist;       // how many timers are active
+    uint16_t startoflist;      // index of first timer
 } DelayRequestList;
 
 /*Function definitions---------------------------------------------------------*/

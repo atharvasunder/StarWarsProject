@@ -21,7 +21,7 @@ with C++ compilation along with C compilation*/
 Contains microcontroller specific macros and function definitions for use in this header. */
 #include "main.h"
 #include <stdbool.h>
-#include "led_events.h"
+#include "events.h"
 
 /* Macros/declerations related to states--------------------------------------------------------*/
 typedef enum

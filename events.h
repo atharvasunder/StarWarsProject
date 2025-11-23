@@ -31,14 +31,14 @@ typedef enum
     NO_EVENT
 } event_type;
 
-
-typedef struct event{    // params are only relevent for start_timeout and timeout events
+// data structure to represent an event
+typedef struct event{    // param1 ansd param2 are only relevent for start_timeout and timeout events
     event_type type;    
     uint16_t param1;    // to denote the device that requires the timeout
     double param2;      // to denote the duration of the timeout
 } event;
 
-#define MAX_EVENT_QUEUE_SIZE 100   // define max size
+#define MAX_EVENT_QUEUE_SIZE 100   // define max number of events that can be queued for service
 
 typedef struct event_queue {
     event queue[MAX_EVENT_QUEUE_SIZE]; // array of event objects, this array is called queue here
