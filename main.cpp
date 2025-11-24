@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    main.cpp 
-  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet) hello
   * @version 1.0
   * @date    November-2025
   * @brief   Main file for star wars light saber gamep
