@@ -35,6 +35,9 @@ void clear_LED_Blue(void);
 void set_LED_Yellow(void);
 void clear_LED_Yellow(void);
 
+void init_phototransistor(void);
+uint16_t read_phototransistor(void);
+
 
 #ifdef __cplusplus
 }

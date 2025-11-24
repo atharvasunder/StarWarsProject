@@ -171,7 +171,7 @@ void initGpioCxAsInput_PU(uint16_t x){
     
     /* Configure pulled-down */
     PORTC_PUPDR = PORTC_PUPDR & ~(3UL << (x * 2)); // Clear bits first
-    PORTC_PUPDR = PORTC_PUPDR | (2UL << (x * 1));  // Set to 10 for pull-down
+    PORTC_PUPDR = PORTC_PUPDR | (1UL << (x * 2));  // Set to 01 for pull-down
 }
 
 void initGpioCxAsInputNoPull(uint16_t x)

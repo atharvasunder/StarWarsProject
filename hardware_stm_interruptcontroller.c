@@ -9,6 +9,7 @@
   */
 
 #include "hardware_stm_interruptcontroller.h"
+#include "debug_mort.h"
 #include "events.h"
 #include "state_machine.h"
 #include "stm32f4xx_mort2.h"
@@ -78,11 +79,7 @@ void enableEXTI6OnPortC(void)
     uint32_t * reg_pointer_32;
     
     /* Initialize GPIO C6 as input */
-    initGpioCxAsInput(6);
-    
-    // don
-    // /* Initialize GPIO B0 as output for debugging */
-    // initGpioBxAsOutput(0);
+    initGpioCxAsInput_PU(6);
     
     /* Enable SYSCFG clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
@@ -99,7 +96,6 @@ void enableEXTI6OnPortC(void)
     
     /* Enable EXTI9_5 interrupt in NVIC */
     NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31 = EXTI9_5_INTERRUPT_BIT;
-    buttonPressFlag = 1;
 }
 
 void EXTI9_5_IRQHandler(void)
@@ -114,16 +110,18 @@ void EXTI9_5_IRQHandler(void)
 
         int32_t currentTime = current_time_ms();
         // Debouncing 
+        
+        
 
-        if (currentTime - pressedTime < 5000)
+        if (currentTime - pressedTime < 5000 || current_state.type != IDLE)
         {
             // been less than 5 seconds; ignore
+            // not in the idle stage don't operate button
         } else 
         {
             enqueue_event(BUTTON_PRESSED, 1, 1);
             pressedTime = currentTime;
         }
-        buttonPressFlag = 0;
         
     }
     

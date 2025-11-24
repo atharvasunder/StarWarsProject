@@ -117,16 +117,19 @@ void init_phototransistor() {
     initGpioFxAsAnalog(4);
 }
 
+/* Read Photo transistor value */
+uint16_t read_phototransistor() {
+    return 0;
+}
+
 
 /*
 INITIALIZES PIN C6 AS INPUT
 */
 void init_gummy_Input(void)
 {
-    initGpioCxAsInput_PU(6);
+    // initGpioCxAsInput_PU(6);
     enableEXTI6OnPortC();
-
-
 }
 
 /*

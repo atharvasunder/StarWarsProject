@@ -23,7 +23,23 @@
 Serial pc(USBTX, USBRX);
 /* TEMPORARY */
 
+#define buttontest
+// #define main
 
+#ifdef buttontest
+int main (void)
+{
+    init_gummy_Input();
+    while(1) 
+    {
+        int16_t reader = read_INPUT();
+        pc.printf("what is the value, %d\n", reader);
+    }
+}
+
+#endif
+
+#ifdef main
 int main (void)
 {
     /*initialize the event queue and state machine*/
@@ -35,9 +51,6 @@ int main (void)
     while(1){
         timeoutCheck();
         service_event_queue();
-        pc.printf("is button pressed? : %d\n", (int)buttonPressFlag);
-        int16_t reader = read_INPUT();
-        pc.printf("what is the value, %d\n", reader);
-
     }
 }
+#endif
