@@ -69,7 +69,7 @@
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6         ((uint32_t)0x40)
 
 /* Button Interrupt flags */
-volatile bool    buttonPressFlag       = false;
+volatile int16_t buttonPressFlag       = 0;
 volatile int32_t pressedTime           = 0;
 
 
@@ -99,7 +99,7 @@ void enableEXTI6OnPortC(void)
     
     /* Enable EXTI9_5 interrupt in NVIC */
     NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31 = EXTI9_5_INTERRUPT_BIT;
-    buttonPressFlag = true;
+    buttonPressFlag = 1;
 }
 
 void EXTI9_5_IRQHandler(void)
@@ -123,7 +123,7 @@ void EXTI9_5_IRQHandler(void)
             enqueue_event(BUTTON_PRESSED, 1, 1);
             pressedTime = currentTime;
         }
-        buttonPressFlag = false;
+        buttonPressFlag = 0;
         
     }
     

@@ -9,6 +9,7 @@
 */
 
 #include "events.h"
+#include "gummy_led_utils.h"
 #include "hardware_stm_interruptcontroller.h"
 #include "state_machine.h"
 #include "stdint.h"
@@ -53,17 +54,16 @@ void init_state_machine(void) {
     // initialize pins for gummy LEDs and phototransistor circuit output as input to nucleo
     // maybe an ADC here if we are not going to use a schmitt trigger?
         // initialize LEDs
-        initPF0asOutput(); // red
-        initPF1asOutput(); // yellow
-        initPF2asOutput(); // green
-        initPF3asOutput(); // blue
+        init_LED_Blue();
+        init_LED_Red();
+        init_LED_Green();
+        init_LED_Yellow();
 
         // init phototransistor
-        initPF4asInput();
+        // initPF4asInput();
 
         // initialize pins for button (including the external interrupt)
-        initPC6asInput();
-        enableEXTI6OnPortC();
+        init_gummy_Input();
         
 
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)

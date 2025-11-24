@@ -11,6 +11,7 @@
 #include "hardware_stm_gpio.h"
 #include "gummy_led_utils.h"
 #include "stdint.h"
+#include "hardware_stm_interruptcontroller.h"
 
 /************************************
 * Initializes LED1 on the nucleo Board which is connected to Port B Pin 0
@@ -18,7 +19,7 @@
 void init_LED_Red(void)
 {
     // Call from hardware_stm_gpio
-    initGpioB0AsOutput();
+    initGpioBxAsOutput(0);
 
     // initialize to be connected to timer3 channel3
     // initGpioB0AsAlternate2();
@@ -27,7 +28,7 @@ void init_LED_Red(void)
 void init_LED_Green(void)
 {
     // Call from hardware_stm_gpio
-    initGpioB1AsOutput();
+    initGpioBxAsOutput(1);
 
     // initialize to be connected to timer3 channel3
     // initGpioB0AsAlternate2();
@@ -36,10 +37,16 @@ void init_LED_Green(void)
 void init_LED_Blue(void)
 {
     // Call from hardware_stm_gpio
-    initGpioB2AsOutput();
+    initGpioBxAsOutput(2);
 
     // initialize to be connected to timer3 channel3
     // initGpioB0AsAlternate2();
+}
+
+void init_LED_Yellow(void)
+{
+    initGpioBxAsOutput(3);
+
 }
 
 /************************************
@@ -48,7 +55,7 @@ void init_LED_Blue(void)
 void toggle_LED1( void )
 {
     // Call from hardware_stm_gpio
-    toggleGPIOB0();
+    toggleGPIOBx(0);
 }
 
 /************************************
@@ -57,50 +64,69 @@ void toggle_LED1( void )
 void set_LED_Red( void )
 {
     // Call from hardware_stm_gpio
-    setGPIOB0();
+    setGPIOBx(0);
 }
 
 void set_LED_Green( void )
 {
     // Call from hardware_stm_gpio
-    setGPIOB1();
+    setGPIOBx(1);
 }
 
 void set_LED_Blue( void )
 {
     // Call from hardware_stm_gpio
-    setGPIOB2();
+    setGPIOBx(2);
 }
 
+void set_LED_Yellow( void )
+{
+    // Call from hardware_stm_gpio
+    setGPIOBx(3);
+}
 /************************************
 * CLEAR LED1 
 *************************************/
 void clear_LED_Red( void )
 {
     // Call from hardware_stm_gpio
-    clearGPIOB0();
+    clearGPIOBx(0);
 }
 
 void clear_LED_Green( void )
 {
     // Call from hardware_stm_gpio
-    clearGPIOB1();
+    clearGPIOBx(1);
 }
 
 void clear_LED_Blue( void )
 {
     // Call from hardware_stm_gpio
-    clearGPIOB2();
+    clearGPIOBx(2);
 }
 
+void clear_LED_Yellow( void )
+{
+    // Call from hardware_stm_gpio
+    clearGPIOBx(3);
+}
+
+
+/* Initialize PF4 as anlog - Phototransistor */
+void init_phototransistor() {
+    initGpioFxAsAnalog(4);
+}
 
 
 /*
 INITIALIZES PIN C6 AS INPUT
 */
-void init_INPUT(void)
+void init_gummy_Input(void)
 {
-    initGpioC6AsInput();
+    initGpioCxAsInput_PU(6);
+    enableEXTI6OnPortC();
+
+
 }
 
 /*
@@ -108,7 +134,7 @@ CHECK STATE OF PIN 6
 */
 uint32_t read_INPUT(void)
 {
-    return checkGPIOC6();
+    return checkGPIOCx(6);
 }
 
 /*

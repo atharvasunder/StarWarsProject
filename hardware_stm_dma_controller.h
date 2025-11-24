@@ -43,6 +43,10 @@ void dma_disable_irq(void);
 void dma_stop_all(void);
 void dma_clear_flags(void);
 
+/* for function testing */
+void enableDMAForTimer3Channel2(void);
+
+
 #ifdef __cplusplus
 }
 #endif

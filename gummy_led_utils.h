@@ -19,9 +19,10 @@
 void init_LED_Red(void);
 void init_LED_Green(void);
 void init_LED_Blue(void);
+void init_LED_Yellow(void);
 
 void toggle_LED1(void);
-void init_INPUT(void);
+void init_gummy_Input(void);
 uint32_t read_INPUT(void);
 void LED_state_set(uint32_t input);
 
@@ -31,6 +32,8 @@ void set_LED_Green(void);
 void clear_LED_Green(void);
 void set_LED_Blue(void);
 void clear_LED_Blue(void);
+void set_LED_Yellow(void);
+void clear_LED_Yellow(void);
 
 
 #ifdef __cplusplus

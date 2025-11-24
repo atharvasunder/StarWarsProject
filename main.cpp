@@ -11,6 +11,7 @@
 #include "main.h"
 #include "debug_mort.h"
 #include "events.h"
+#include "gummy_led_utils.h"
 #include "state_machine.h"
 #include "global_time.h"
 #include "hardware_stm_interruptcontroller.h"
@@ -18,6 +19,7 @@
 
 /* TEMPORARY */
 // for debug printing
+#include "mbed.h"
 Serial pc(USBTX, USBRX);
 /* TEMPORARY */
 
@@ -34,5 +36,8 @@ int main (void)
         timeoutCheck();
         service_event_queue();
         pc.printf("is button pressed? : %d\n", (int)buttonPressFlag);
+        int16_t reader = read_INPUT();
+        pc.printf("what is the value, %d\n", reader);
+
     }
 }

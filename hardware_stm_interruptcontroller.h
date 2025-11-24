@@ -27,8 +27,8 @@ void enableEXTI6OnPortC(void);
 void EXTI9_5_IRQHandler(void);
 void TIM3_IRQHandler(void);
 
-extern volatile bool    buttonPressFlag;
-extern volatile int32_t pressedTime;
+extern volatile int16_t    buttonPressFlag;
+extern volatile int32_t    pressedTime;
 
 #ifdef __cplusplus
 }

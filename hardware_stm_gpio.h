@@ -34,6 +34,7 @@ void toggleGPIOBx( uint16_t );
 void setGPIOBx( uint16_t );
 void clearGPIOBx( uint16_t );
 void initGpioCxAsInput( uint16_t );
+void initGpioCxAsInput_PU( uint16_t);
 void initGpioCxAsInputNoPull(uint16_t);
 uint32_t checkGPIOBx(uint16_t);
 uint32_t checkGPIOCx(uint16_t);

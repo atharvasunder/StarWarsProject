@@ -222,3 +222,9 @@ uint16_t dma_get_latest_sample_for_adc(uint8_t adc_num, uint16_t *buffer, uint16
     uint16_t last = (uint16_t)((idx + buffer_size - 1) % buffer_size);
     return buffer[last];
 }
+
+void enableDMAForTimer3Channel2(void)
+{
+    // TODO: implement real DMA setup for TIM3 CH2.
+    // For now this is a stub so code links.
+}

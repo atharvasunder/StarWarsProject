@@ -8,7 +8,7 @@
   ******************************************************************************
 */
 
-#include "led_utils.h"
+#include "led_strip_utils.h"
 #include "debug_mort.h"
 #include "stm32f4xx_rcc_mort.h"
 #include "hardware_stm_dma_controller.h"
