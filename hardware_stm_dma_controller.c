@@ -125,6 +125,7 @@ void dma_clear_flags(void)
     DMA1_HIFCR = 0xFFFFFFFF;
 }
 
+<<<<<<< HEAD
 // // Internal helper
 // static void dma_configure_stream(volatile uint32_t *stream_cr,
 //                                  volatile uint32_t *stream_ndtr,
@@ -265,3 +266,26 @@ void dma_clear_flags(void)
 //     uint16_t last = (uint16_t)((idx + buffer_size - 1) % buffer_size);
 //     return buffer[last];
 // }
+=======
+uint16_t dma_get_write_index_for_adc(uint8_t adc_num, uint16_t buffer_size)
+{
+    const ADC_DMA_Map *m = find_map(adc_num);
+    if (!m || buffer_size == 0) return 0;
+    uint16_t remaining = (uint16_t)(*(m->ndtr_reg));          // NDTR counts down
+    return (uint16_t)((buffer_size - remaining) % buffer_size);
+}
+
+uint16_t dma_get_latest_sample_for_adc(uint8_t adc_num, uint16_t *buffer, uint16_t buffer_size)
+{
+    uint16_t idx = dma_get_write_index_for_adc(adc_num, buffer_size);
+    /* The latest completed sample is at idx-1 (wrap safe) */
+    uint16_t last = (uint16_t)((idx + buffer_size - 1) % buffer_size);
+    return buffer[last];
+}
+
+void enableDMAForTimer3Channel2(void)
+{
+    // TODO: implement real DMA setup for TIM3 CH2.
+    // For now this is a stub so code links.
+}
+>>>>>>> e9c3f72e6094bc85a3a73a0364dfe9d2cbd9ca12
