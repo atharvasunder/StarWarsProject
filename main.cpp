@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    main.cpp 
-  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet) hello
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
   * @brief   Main file for star wars light saber gamep
@@ -13,7 +13,14 @@
 #include "events.h"
 #include "state_machine.h"
 #include "global_time.h"
+#include "hardware_stm_interruptcontroller.h"
 #include <cstdint>
+
+/* TEMPORARY */
+// for debug printing
+Serial pc(USBTX, USBRX);
+/* TEMPORARY */
+
 
 int main (void)
 {
@@ -26,5 +33,6 @@ int main (void)
     while(1){
         timeoutCheck();
         service_event_queue();
+        pc.printf("is button pressed? : %d\n", (int)buttonPressFlag);
     }
 }

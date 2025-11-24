@@ -9,6 +9,7 @@
 */
 
 #include "events.h"
+#include "hardware_stm_interruptcontroller.h"
 #include "state_machine.h"
 #include "stdint.h"
 #include "debug_mort.h"
@@ -23,10 +24,10 @@ float led_response[3]; // for storing inputs from light detection circuit.
 uint8_t idle_start_flag = 0;
 
 // for gummy bear LEDs (can turn them on after detecting light from them)
-uint8_t led1_flag = 0;
-uint8_t led2_flag = 0;
-uint8_t led3_flag = 0;
-uint8_t led4_flag = 0;
+uint8_t led1_flag = 0; // red
+uint8_t led2_flag = 0; // green
+uint8_t led3_flag = 0; // yellow 
+uint8_t led4_flag = 0; // blue
 
 // for gummy color classification
 uint16_t gummy_responses[4];
@@ -40,18 +41,61 @@ void init_state_machine(void) {
 
     /* PLEASE COMMENT EXACTLY WHAT PIN, TIMER, ADC ETC YOU ARE INITIALIZING */
 
+    /* GENERAL */
+
+        // initialize and start timers
+
+    /* GENERAL */
+
+
+    /* HILT */
+
     // initialize pins for gummy LEDs and phototransistor circuit output as input to nucleo
     // maybe an ADC here if we are not going to use a schmitt trigger?
+        // initialize LEDs
+        initPF0asOutput(); // red
+        initPF1asOutput(); // yellow
+        initPF2asOutput(); // green
+        initPF3asOutput(); // blue
 
-    // initialize pins for button (including the external interrupt)
+        // init phototransistor
+        initPF4asInput();
 
-    // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
+        // initialize pins for button (including the external interrupt)
+        initPC6asInput();
+        enableEXTI6OnPortC();
+        
 
-    // initialize pins for LED strip
+        // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
-    // initialize pins for speaker
+        // initialize hilt speaker
 
-    // initialize and start timers
+    /* HILT */
+
+    /* BLADE */
+        // initialize pins for LED strip
+
+
+    /* BLADE */
+
+
+    /* TARGET BOARD */
+
+        // initialize pins for target soundtrack speaker
+
+        // initialize target motor                           Darth Vader
+
+        // initialize target motor encoder                   Darth Vader
+
+        // initialize target timer motor                     XX
+
+        // initialize target timer encoder                   XX
+
+        // initialize target timer motor                     X
+
+        // initialize target timer encoder                   X
+
+    /* TARGET BOARD */
 
     current_state.type = IDLE;
 }

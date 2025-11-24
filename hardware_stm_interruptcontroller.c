@@ -9,6 +9,8 @@
   */
 
 #include "hardware_stm_interruptcontroller.h"
+#include "events.h"
+#include "state_machine.h"
 #include "stm32f4xx_mort2.h"
 #include "stm32f4xx_rcc_mort.h"
 #include "hardware_stm_gpio.h"
@@ -66,6 +68,11 @@
 #define EXTERNAL_INTERRUPT_CONTROLLER_FTSR_EXTI6            ((uint32_t)0x40)
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6         ((uint32_t)0x40)
 
+/* Button Interrupt flags */
+volatile bool    buttonPressFlag       = false;
+volatile int32_t pressedTime           = 0;
+
+
 void enableEXTI6OnPortC(void)
 {
     uint32_t * reg_pointer_32;
@@ -73,8 +80,9 @@ void enableEXTI6OnPortC(void)
     /* Initialize GPIO C6 as input */
     initGpioCxAsInput(6);
     
-    /* Initialize GPIO B0 as output for debugging */
-    initGpioBxAsOutput(0);
+    // don
+    // /* Initialize GPIO B0 as output for debugging */
+    // initGpioBxAsOutput(0);
     
     /* Enable SYSCFG clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
@@ -91,6 +99,7 @@ void enableEXTI6OnPortC(void)
     
     /* Enable EXTI9_5 interrupt in NVIC */
     NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31 = EXTI9_5_INTERRUPT_BIT;
+    buttonPressFlag = true;
 }
 
 void EXTI9_5_IRQHandler(void)
@@ -100,9 +109,22 @@ void EXTI9_5_IRQHandler(void)
     {
         /* Clear the EXTI6 pending bit by writing 1 */
         EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
+
+        // This is where button interrupt stuff need to go 
+
+        int32_t currentTime = current_time_ms();
+        // Debouncing 
+
+        if (currentTime - pressedTime < 5000)
+        {
+            // been less than 5 seconds; ignore
+        } else 
+        {
+            enqueue_event(BUTTON_PRESSED, 1, 1);
+            pressedTime = currentTime;
+        }
+        buttonPressFlag = false;
         
-        /* Toggle LED on GPIO B0 */
-        toggleGPIOBx(0);
     }
     
     /* Additional handlers for EXTI5, 7, 8, 9 can be added bekiw*/
