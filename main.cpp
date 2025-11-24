@@ -4,13 +4,14 @@
   * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
-  * @brief   Main file for star wars light saber gamep
+  * @brief   Main file for star wars light saber gamep hello i m kor
   ******************************************************************************
 */
 
 #include "main.h"
 #include "debug_mort.h"
 #include "events.h"
+#include "gummy_led_utils.h"
 #include "state_machine.h"
 #include "global_time.h"
 #include "hardware_stm_interruptcontroller.h"
@@ -18,10 +19,27 @@
 
 /* TEMPORARY */
 // for debug printing
+#include "mbed.h"
 Serial pc(USBTX, USBRX);
 /* TEMPORARY */
 
+#define buttontest
+// #define main
 
+#ifdef buttontest
+int main (void)
+{
+    init_gummy_Input();
+    while(1) 
+    {
+        int16_t reader = read_INPUT();
+        pc.printf("what is the value, %d\n", reader);
+    }
+}
+
+#endif
+
+#ifdef main
 int main (void)
 {
     /*initialize the event queue and state machine*/
@@ -33,6 +51,6 @@ int main (void)
     while(1){
         timeoutCheck();
         service_event_queue();
-        pc.printf("is button pressed? : %d\n", (int)buttonPressFlag);
     }
 }
+#endif

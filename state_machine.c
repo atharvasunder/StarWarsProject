@@ -9,6 +9,7 @@
 */
 
 #include "events.h"
+#include "gummy_led_utils.h"
 #include "hardware_stm_interruptcontroller.h"
 #include "state_machine.h"
 #include "stdint.h"
@@ -53,17 +54,16 @@ void init_state_machine(void) {
     // initialize pins for gummy LEDs and phototransistor circuit output as input to nucleo
     // maybe an ADC here if we are not going to use a schmitt trigger?
         // initialize LEDs
-        initPF0asOutput(); // red
-        initPF1asOutput(); // yellow
-        initPF2asOutput(); // green
-        initPF3asOutput(); // blue
+        init_LED_Blue();
+        init_LED_Red();
+        init_LED_Green();
+        init_LED_Yellow();
 
         // init phototransistor
-        initPF4asInput();
+        init_phototransistor();
 
         // initialize pins for button (including the external interrupt)
-        initPC6asInput();
-        enableEXTI6OnPortC();
+        init_gummy_Input();
         
 
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
@@ -110,7 +110,7 @@ void state_machine(event newevent){
 
                 // start timeout for LED strip
                 // START_TIMEOUT: event name
-                // 1: device that requires the delay, 1: led_strip, 2: speaker
+                // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
                 // 1000: delay duration in milli seconds     
                 enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
@@ -162,14 +162,48 @@ void state_machine(event newevent){
             
             if (led1_flag == 0){
                 // turn on LED1
+                set_LED_Red();
 
                 // play speaker sound (beep indicating one led is on)
 
-                // start a delay (see idle state for how to do it, can keep the param1 = 3 to denote gummy led related timeout
-                // but does not really matter here)
+
+                // keep red LED on for 0.5s
+                enqueue_event(START_TIMEOUT, 3, 500);
+                
+                // read Transistor
+                gummy_responses[0] = read_phototransistor();
 
                 led1_flag = 1;
+            } 
+            
+            
+            if (led2_flag == 0) {
+                // clear Red (previous LED)
+                clear_LED_Red();
+                // turn on LED2
+                set_LED_Blue();
+                // play speaker sound
+
+                // keep blue LED on for 0.5s
+                enqueue_event(START_TIMEOUT, 3, 500);
+                // read Transistor 
+
+
+                led2_flag = 1;
             }
+
+            if (led3_flag == 0) {
+                // turn on LED3
+                set_LED_Green();
+
+            }
+
+            if (led4_flag == 0) {
+                // turn on LED4
+                set_LED_Yellow();
+            }
+
+
             
             if (newevent.type == COLOUR_DETECTED){  // can divide these events into individual colour events
                 current_state.type = SABER_READY;
@@ -185,10 +219,7 @@ void state_machine(event newevent){
                 // because we want the speaker to blick as the individual gummy leds light up. 
                 // That is why param1 does not really matter here
 
-                if (led1_flag == 1 &&
-                    led2_flag == 0 &&
-                    led3_flag == 0 &&
-                    led4_flag == 0){
+                if (gummy_responses == {0, 0, 1, 0}){
 
                     // read input from phototransistor circuit, store in an array
 
@@ -203,10 +234,7 @@ void state_machine(event newevent){
                     led2_flag = 1;
                 }
 
-                else if(led1_flag == 1 &&
-                        led2_flag == 1 &&
-                        led3_flag == 0 &&
-                        led4_flag == 0){
+                else if(gummy_responses == {} ){
                     
                     // read input from phototransistor circuit, store in an array
 
@@ -221,10 +249,7 @@ void state_machine(event newevent){
                     led3_flag = 1;
                 }
 
-                else if(led1_flag == 1 &&
-                        led2_flag == 1 &&
-                        led3_flag == 1 &&
-                        led4_flag == 0){
+                else if(gummy_responses == ){
                     
                     // read input from phototransistor circuit, store in an array
 
@@ -239,10 +264,7 @@ void state_machine(event newevent){
                     led4_flag = 1;
                 }
 
-                else if (led1_flag == 1 &&
-                        led2_flag == 1 &&
-                        led3_flag == 1 &&
-                        led4_flag == 1){
+                else if (gummy_responses){
                         
                     // read input from phototransistor circuit, store in an array
 

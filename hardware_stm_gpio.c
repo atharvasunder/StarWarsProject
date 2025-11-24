@@ -156,6 +156,24 @@ void initGpioCxAsInput(uint16_t x){
     PORTC_PUPDR = PORTC_PUPDR | (2UL << (x * 2));  // Set to 10 for pull-down
 }
 
+void initGpioCxAsInput_PU(uint16_t x){
+    /* GPIOC Peripheral clock enable */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    
+    /* GPIOC Pin x as input */
+    PORTC_MODER = PORTC_MODER & ~(3UL << (x * 2)); // Clear bits 2x+1:2x to set as input (00)
+    
+    /* PUSH-PULL Pin */
+    PORTC_OTYPER = PORTC_OTYPER & ~(1UL << x);
+    
+    /* GPIOC pin x high speed */
+    PORTC_OSPEEDR = PORTC_OSPEEDR | (3UL << (x * 2)); // Set bits 2x+1:2x to 11 for high speed
+    
+    /* Configure pulled-down */
+    PORTC_PUPDR = PORTC_PUPDR & ~(3UL << (x * 2)); // Clear bits first
+    PORTC_PUPDR = PORTC_PUPDR | (1UL << (x * 2));  // Set to 01 for pull-down
+}
+
 void initGpioCxAsInputNoPull(uint16_t x)
 {
     /* GPIOC Peripheral clock enable */
