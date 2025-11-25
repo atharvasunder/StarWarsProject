@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    led_state_machine.c 
-  * @author  Group 3
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
   * @brief   Contains functions for reasoning about state transitions
@@ -10,9 +10,12 @@
 
 #include "events.h"
 #include "gummy_led_utils.h"
+#include "led_strip_utils.h"
 #include "hardware_stm_interruptcontroller.h"
 #include "state_machine.h"
 #include "stdint.h"
+#include "hardware_stm_gpio.h"
+#include "hardware_stm_timer3.h"
 #include "debug_mort.h"
 #include "global_time.h"
 #include <stdbool.h>
@@ -38,6 +41,15 @@ uint16_t gummy_color;
 uint8_t  saber_start_flag = 0; //
 uint16_t led_on_count     = 0;  // for counting how many leds have turned on
 uint8_t  saber_init_flag  = 0;  // whether initialized or not
+
+// initialize strip leds array
+neopixel_led leds[NUM_OF_LEDS];
+
+// pick idle colour
+rgb_color strip_color;
+strip_color.r = 0;
+strip_color.g = 0;
+strip_color.b = 255;
 
 void init_state_machine(void) {
 
@@ -75,7 +87,8 @@ void init_state_machine(void) {
 
     /* BLADE */
         // initialize pins for LED strip
-
+        initGpioBxAsAF2(5); // PB5 as alternative function 2 for PWM
+        initTimer3PWM(8, 13);   // 8: PSC, 13: ARR
 
     /* BLADE */
 
@@ -108,17 +121,18 @@ void state_machine(event newevent){
             
             if (idle_start_flag == 0){
                 // turn on LED strip bottom light
+                set_n_leds(&strip_color, leds, 1);
 
                 // start timeout for LED strip
                 // START_TIMEOUT: event name
                 // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
                 // 1000: delay duration in milli seconds     
-                enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
+                // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
                 // turn on speaker (start the music)
 
                 // start timeout for speaker
-                enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
+                // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
                 // @ korell need to choose a delay duration based on the music
 
                 // set the flag
@@ -129,6 +143,7 @@ void state_machine(event newevent){
                 current_state.type = SABER_INITIALIZE;
 
                 // turn off led strip (don't want led strip to affect phototransistor readings)
+                reset_all_leds(leds);
 
                 //turn off chill intro music
 
@@ -349,7 +364,7 @@ void state_machine(event newevent){
 
             if (saber_start_flag == 0){
                 // turn on first led in strip, update led_count variable by 1
-
+                set_n_leds(&strip_color, leds, led_on_count);
                 // start led_strip timeout request
                 enqueue_event(START_TIMEOUT, 1, 200);
 
@@ -358,6 +373,7 @@ void state_machine(event newevent){
                 // start speaker timeout request
 
                 saber_start_flag = 1;
+                led_on_count ++;
 
             }
 
@@ -373,17 +389,20 @@ void state_machine(event newevent){
 
             else if (newevent.type == TIMEOUT){
                 if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
                     // if number of leds on < 60, turn on the required number of leds
                     // else, dont do anything
+                    if (led_on_count <= NUM_OF_LEDS){
+                        set_n_leds(&strip_color, leds, led_on_count);
+                    }
 
                     // start a new timeout
-                    enqueue_event(START_TIMEOUT, 1, 1000);
+                    enqueue_event(START_TIMEOUT, 1, 500);
 
                 }
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     // play speaker (send 1 set of bits before the next timeout)
-                    // if number of leds >= 60, dont do anything, dont start another delay too
 
                     // start a new timeout
                     enqueue_event(START_TIMEOUT, 2, 1000);

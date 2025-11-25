@@ -99,6 +99,7 @@
 void dma_stop_all(void);
 void dma_clear_flags(void);
 
+void initDMAForTimer3Channel2(void);
 void enableDMAForTimer3Channel2(void);
 
 
