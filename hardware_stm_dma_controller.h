@@ -99,11 +99,9 @@
 void dma_stop_all(void);
 void dma_clear_flags(void);
 
-<<<<<<< HEAD
 void initDMAForTimer3Channel2(void);
-=======
+
 /* for function testing */
->>>>>>> e9c3f72e6094bc85a3a73a0364dfe9d2cbd9ca12
 void enableDMAForTimer3Channel2(void);
 
 

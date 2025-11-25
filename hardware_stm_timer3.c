@@ -10,6 +10,7 @@
 
 #include "hardware_stm_timer3.h"
 #include "hardware_stm_gpio.h"
+#include "hardware_stm_dma_controller.h"
 #include "stm32f4xx_mort2.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
@@ -23,12 +24,12 @@ void initTimer3PWM(uint16_t prescalervalue, uint16_t autoreloadvalue)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
     /*initialize DMA controller to sync with the timer (DMA is not on yet)*/
-    initDMAForTimer3_channel2();
+    initDMAForTimer3Channel2();
     
     /* Clear status register */
     TIM3_SR = 0;
     
-    /* Set Prescaler: 90 MHz / 9000 = 10 kHz */
+    /* Set Prescaler */
     TIM3_PSC = prescalervalue;
     
     /* Set Auto-Reload */
