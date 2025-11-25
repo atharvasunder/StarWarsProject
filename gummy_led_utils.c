@@ -154,3 +154,26 @@ void LED_state_set(uint32_t input)
     }
 
 }
+
+uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
+
+    return 1;
+}
+
+
+
+
+// void init_gummy_flags(void) {
+//     // reset the idle flag to zero
+//     idle_start_flag = 0;
+
+//     // initialize LED flags
+//     led1_flag = 0;
+//     led2_flag = 0;
+//     led3_flag = 0;
+//     led4_flag = 0;
+
+//     saber_start_flag = 0;
+//     led_on_count     = 0;
+//     saber_init_flag  = 0;
+// }

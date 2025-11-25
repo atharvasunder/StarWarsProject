@@ -35,9 +35,9 @@ uint16_t gummy_responses[4];
 uint16_t gummy_color;
 
 // for turning on saber blade
-uint8_t  saber_start_flag = 0;
+uint8_t  saber_start_flag = 0; //
 uint16_t led_on_count     = 0;  // for counting how many leds have turned on
-uint8_t  saber_init_flag  = 0;  // wether o
+uint8_t  saber_init_flag  = 0;  // whether initialized or not
 
 void init_state_machine(void) {
 
@@ -132,18 +132,7 @@ void state_machine(event newevent){
 
                 //turn off chill intro music
 
-                // reset the idle flag to zero
-                idle_start_flag = 0;
-
-                // initialize LED flags
-                led1_flag = 0;
-                led2_flag = 0;
-                led3_flag = 0;
-                led4_flag = 0;
-
-                saber_start_flag = 0;
-                led_on_count     = 0;
-                saber_init_flag  = 0;
+                init_gummy_flags();
 
             }
 
@@ -183,7 +172,31 @@ void state_machine(event newevent){
                 saber_init_flag = 1;
                 led1_flag       = 1;
 
-            } else if (saber_init_flag == 1 && led1_flag == 1) {
+            } 
+
+            // delay for .5 s
+            if (newevent.type == START_TIMEOUT) {
+                insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
+            }
+            
+
+            else if (newevent.type == TIMEOUT) {
+                if (saber_init_flag == 1) { // started
+                    // LED1 done 
+                    gummy_responses[0] = read_phototransistor();
+                    clear_LED_Red();
+
+                    set_LED_Blue();
+                    enqueue_event(START_TIMEOUT, 3, 500);
+
+                    saber_init_flag = 2;
+                    led2_flag       = 1;
+
+                }
+
+            }
+            
+            (saber_init_flag == 1 && led1_flag == 1) {
                 // read red phototransistor
                 gummy_responses[0] = read_phototransistor();
 
