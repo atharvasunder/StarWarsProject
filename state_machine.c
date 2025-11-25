@@ -147,7 +147,6 @@ void state_machine(event newevent){
 
                 //turn off chill intro music
 
-                init_gummy_flags();
                 saber_init_flag = 0;
 
             }
@@ -172,6 +171,8 @@ void state_machine(event newevent){
                     enqueue_event(START_TIMEOUT, 2, 1000);
                 }  
             }   
+        
+            break;
 
 
         case SABER_INITIALIZE:  // for cycling through leds and determining gummy bear colour
@@ -215,8 +216,8 @@ void state_machine(event newevent){
                         gummy_responses[1] = read_phototransistor();
                         clear_LED_Blue();
 
-                        enqueue_event(START_TIMEOUT, 3, 500);
                         set_LED_Green();
+                        enqueue_event(START_TIMEOUT, 3, 500);
 
                         saber_init_flag = 3;
                     }
@@ -225,8 +226,8 @@ void state_machine(event newevent){
                         gummy_responses[2] = read_phototransistor();
                         clear_LED_Green();
 
-                        enqueue_event(START_TIMEOUT, 3, 500);
                         set_LED_Yellow();
+                        enqueue_event(START_TIMEOUT, 3, 500);
 
                         saber_init_flag = 4;
                     }
@@ -239,17 +240,19 @@ void state_machine(event newevent){
 
                         gummy_color = gummy_to_saber(gummy_responses, 4);
 
+                    if (gummy_color != 0) {
+                        // gummy detected
+                        enqueue_event(COLOUR_DETECTED, gummy_color, 0);
+                        current_state.type = SABER_READY;
+                    } else {
+                        // no color detected
+                        current_state.type = IDLE;
                     }
-
-                if (gummy_color != 0) {
-                    // gummy detected
-                    current_state.type = SABER_READY;
-                    enqueue_event(COLOUR_DETECTED, 1, 1);
-                    current_state.type = SABER_READY;
-                } else {
-                    // no color detected
-                    current_state.type = IDLE;
                 }
+            }
+        }
+
+        break;
 
 
         case SABER_READY:
@@ -301,6 +304,8 @@ void state_machine(event newevent){
                 }  
             }   
 
+            break;
+
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IDLE;
@@ -308,5 +313,6 @@ void state_machine(event newevent){
             // start reading accelerometer
 
             }
+            break;
     }
-
+}
