@@ -44,7 +44,7 @@ typedef struct state{
 void init_state_machine(void);
 void state_machine(event currentevent);
 void get_gummy_colour(float led_response[3]);
-extern state current_state;
+void get_strip_colour(uint16_t gummy_color);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus

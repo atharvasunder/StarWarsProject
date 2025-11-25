@@ -251,11 +251,11 @@ void state_machine(event newevent){
             }
         }
 
-
         case SABER_READY:
 
             if (saber_start_flag == 0){
-
+                
+                get_strip_colour(gummy_color);  // updates the global variable strip_color with the required gummy color
 
                 // turn on first led in strip, update led_count variable by 1
                 set_n_leds(&strip_color, leds, led_on_count);
