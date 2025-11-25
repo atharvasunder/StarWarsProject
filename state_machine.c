@@ -35,8 +35,9 @@ uint16_t gummy_responses[4];
 uint16_t gummy_color;
 
 // for turning on saber blade
-uint8_t saber_start_flag = 0;
-uint16_t led_on_count = 0;  // for counting how many leds have turned on
+uint8_t  saber_start_flag = 0;
+uint16_t led_on_count     = 0;  // for counting how many leds have turned on
+uint8_t  saber_init_flag  = 0;  // wether o
 
 void init_state_machine(void) {
 
@@ -134,6 +135,16 @@ void state_machine(event newevent){
                 // reset the idle flag to zero
                 idle_start_flag = 0;
 
+                // initialize LED flags
+                led1_flag = 0;
+                led2_flag = 0;
+                led3_flag = 0;
+                led4_flag = 0;
+
+                saber_start_flag = 0;
+                led_on_count     = 0;
+                saber_init_flag  = 0;
+
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -160,50 +171,76 @@ void state_machine(event newevent){
 
         case SABER_INITIALIZE:  // for cycling through leds and determining gummy bear colour
             
-            if (led1_flag == 0){
+            if (saber_init_flag == 0) {
                 // turn on LED1
                 set_LED_Red();
 
                 // play speaker sound (beep indicating one led is on)
 
-
-                // keep red LED on for 0.5s
+                // keep LED on for 0.5s
                 enqueue_event(START_TIMEOUT, 3, 500);
-                
-                // read Transistor
+
+                saber_init_flag = 1;
+                led1_flag       = 1;
+
+            } else if (saber_init_flag == 1 && led1_flag == 1) {
+                // read red phototransistor
                 gummy_responses[0] = read_phototransistor();
 
-                led1_flag = 1;
-            } 
-            
-            
-            if (led2_flag == 0) {
-                // clear Red (previous LED)
+                // clear red LED
                 clear_LED_Red();
+
                 // turn on LED2
                 set_LED_Blue();
+
                 // play speaker sound
 
                 // keep blue LED on for 0.5s
                 enqueue_event(START_TIMEOUT, 3, 500);
-                // read Transistor 
-
 
                 led2_flag = 1;
-            }
 
-            if (led3_flag == 0) {
-                // turn on LED3
-                set_LED_Green();
+            } else if (saber_init_flag == 1 && led2_flag == 1) {
+                // read blue phototransistor
+                gummy_responses[1] = read_phototransistor();
 
-            }
+                // clear blue LED
+                clear_LED_Blue();
 
-            if (led4_flag == 0) {
-                // turn on LED4
+                // turn on green LED
+                set_LED_Blue();
+                
+                // play speaker sound
+
+                // keep green LED on for 0.5s
+                enqueue_event(START_TIMEOUT, 3, 500);
+
+                led3_flag = 1;
+
+            } else if (saber_init_flag == 1 && led3_flag == 1) {
+                // read green phototransistor
+                gummy_responses[2] = read_phototransistor();
+
+                // clear green LED
+                clear_LED_Green();
+
+                // turn on yellow LED
                 set_LED_Yellow();
+
+                // play speaker sound
+
+                // keep yellow LED on for 0.5s
+                enqueue_event(START_TIMEOUT, 3, 500);
+
+
+                led1_flag          = 0;
+                led2_flag          = 0;
+                led3_flag          = 0;
+                saber_init_flag    = 0;
+                // led4_flag       = 1;
+
+                enqueue_event(COLOUR_DETECTED, 1, 1);
             }
-
-
             
             if (newevent.type == COLOUR_DETECTED){  // can divide these events into individual colour events
                 current_state.type = SABER_READY;
