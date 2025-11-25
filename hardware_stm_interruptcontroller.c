@@ -24,6 +24,8 @@
 
 /* Button Interrupt flags */
 volatile int32_t pressedTime           = 0;
+int8_t           butFlag =0;
+#define BUTTON_DEBOUNCE_MS = 50;
 
 
 void enableEXTI6OnPortC(void)
@@ -58,27 +60,15 @@ void EXTI9_5_IRQHandler(void)
         /* Clear the EXTI6 pending bit by writing 1 */
         EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
 
-        // This is where button interrupt stuff need to go 
 
         int32_t currentTime = current_time_ms();
-        // Debouncing 
-        
-        enqueue_event(BUTTON_PRESSED, 1, 1);
-        pressedTime = currentTime;
 
-        // if (currentTime - pressedTime > 5000)
-        // {
-        //     enqueue_event(BUTTON_PRESSED, 1, 1);
-        //     pressedTime = currentTime;
-
-            
-        // } else 
-        // {
-        //     // been less than 5 seconds; ignore
-        //     // not in the idle stage don't operate button
-
-        // }
-        
+        // debouncing 
+        if ((currentTime - pressedTime) > 50)
+        {
+            pressedTime = currentTime;
+            enqueue_event(BUTTON_PRESSED, 1, 1);
+        } 
     }
     
     /* Additional handlers for EXTI5, 7, 8, 9 can be added bekiw*/

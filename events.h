@@ -53,6 +53,7 @@ bool queue_is_full(void);
 bool queue_is_empty(void);
 event dequeue_event(void);
 void enqueue_event(event_type t, uint16_t param1, double param2);
+uint16_t get_event_queue_length(void);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus

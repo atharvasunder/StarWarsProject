@@ -51,8 +51,9 @@ int main (void)
     while(1){
         timeoutCheck();
         service_event_queue();
-        pc.printf("%d1 \n", current_time_ms());
-        
+
+        uint16_t size = get_event_queue_length();
+        pc.printf("%d \n", size);        
     }
 }
 #endif

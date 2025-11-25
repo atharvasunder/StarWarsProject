@@ -252,6 +252,7 @@ void state_machine(event newevent){
         break;
 
         case SABER_READY:
+            set_LED_Red();
 
             if (saber_start_flag == 0){
                 
@@ -288,10 +289,11 @@ void state_machine(event newevent){
                     // else, dont do anything
                     if (led_on_count <= NUM_OF_LEDS){
                         set_n_leds(&strip_color, leds, led_on_count);
+                        // start a new timeout - keep blade on
+                        enqueue_event(START_TIMEOUT, 1, 500);
                     }
 
-                    // start a new timeout
-                    enqueue_event(START_TIMEOUT, 1, 500);
+
 
                 }
 
@@ -305,13 +307,14 @@ void state_machine(event newevent){
             break;
 
         case IN_GAME_WAITING:  
-            if (newevent.type == BUTTON_PRESSED){
-                current_state.type = IDLE;
+            set_LED_Yellow();
+            // if (newevent.type == BUTTON_PRESSED){
+            //     current_state.type = IDLE;
 
-            // start reading accelerometer
+            // // start reading accelerometer
 
-            }
-        break;
+            // }
+            break;
 
     }
 
