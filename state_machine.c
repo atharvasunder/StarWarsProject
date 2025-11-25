@@ -45,7 +45,7 @@ uint8_t  saber_init_flag  = 0;  // whether initialized or not
 // initialize strip leds array
 neopixel_led leds[NUM_OF_LEDS];
 
-// pick idle colour
+// led strip idle colour
 rgb_color strip_color;
 
 void init_state_machine(void) {
@@ -106,10 +106,6 @@ void init_state_machine(void) {
 
         // initialize target timer encoder                   X
 
-    strip_color.r = 0;
-    strip_color.g = 0;
-    strip_color.b = 255;
-
     /* TARGET BOARD */
     current_state.type = IDLE;
 }
@@ -120,6 +116,11 @@ void state_machine(event newevent){
         case IDLE:
             
             if (idle_start_flag == 0){
+
+                strip_color.r = 0;
+                strip_color.g = 0;
+                strip_color.b = 255;
+
                 // turn on LED strip bottom light
                 set_n_leds(&strip_color, leds, 1);
 
@@ -255,6 +256,8 @@ void state_machine(event newevent){
         case SABER_READY:
 
             if (saber_start_flag == 0){
+
+
                 // turn on first led in strip, update led_count variable by 1
                 set_n_leds(&strip_color, leds, led_on_count);
                 // start led_strip timeout request
@@ -309,4 +312,3 @@ void state_machine(event newevent){
 
             }
     }
-
