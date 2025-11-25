@@ -51,7 +51,7 @@ void initGpioBxAsOutput(uint16_t x){
     PORTB_PUPDR = PORTB_PUPDR & ~(3UL << (x * 2));
 
     /* Set PB0 high initially */
-    setGPIOBx(x);  // Set PBx
+    // setGPIOBx(x);  // Set PBx
 }
 
 void initGpioBxAsInput(uint16_t x)
