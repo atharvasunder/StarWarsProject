@@ -173,6 +173,8 @@ void state_machine(event newevent){
                 }  
             }   
 
+            break;
+
 
         case SABER_INITIALIZE:  // for cycling through leds and determining gummy bear colour
             
@@ -250,6 +252,7 @@ void state_machine(event newevent){
                 }
             }
         }
+        break;
 
         case SABER_READY:
 
@@ -302,6 +305,7 @@ void state_machine(event newevent){
                     enqueue_event(START_TIMEOUT, 2, 1000);
                 }  
             }   
+            break;
 
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
@@ -310,6 +314,7 @@ void state_machine(event newevent){
             // start reading accelerometer
 
             }
+        break;
 
     }
 
