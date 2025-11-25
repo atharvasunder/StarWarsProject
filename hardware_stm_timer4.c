@@ -22,7 +22,9 @@
 void enableNVIC_Timer4(void)
 {
     /* Enable TIM4 global interrupt: ISER[1] bit 5 */
-    NVIC_INTERRUPT_SET_ENABLE_REGISTER_32_63 = TIM4_INTERRUPT_BIT_ISER1;
+    // NVIC_INTERRUPT_SET_ENABLE_REGISTER_32_63 = TIM4_INTERRUPT_BIT_ISER1;
+    NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31 |= TIM4_INTERRUPT_BIT_ISER0;
+
 }
 
 void initTimer4ToInterrupt(uint16_t prescalervalue, uint16_t autoreloadvalue)

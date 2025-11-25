@@ -11,6 +11,7 @@
 #include "hardware_stm_interruptcontroller.h"
 #include "debug_mort.h"
 #include "events.h"
+#include "gummy_led_utils.h"
 #include "state_machine.h"
 #include "stm32f4xx_mort2.h"
 #include "stm32f4xx_rcc_mort.h"
@@ -62,17 +63,21 @@ void EXTI9_5_IRQHandler(void)
         int32_t currentTime = current_time_ms();
         // Debouncing 
         
-        
-        if (currentTime - pressedTime > 5000)
-        {
-            enqueue_event(BUTTON_PRESSED, 1, 1);
-            pressedTime = currentTime;
+        enqueue_event(BUTTON_PRESSED, 1, 1);
+        pressedTime = currentTime;
+
+        // if (currentTime - pressedTime > 5000)
+        // {
+        //     enqueue_event(BUTTON_PRESSED, 1, 1);
+        //     pressedTime = currentTime;
+
             
-        } else 
-        {
-            // been less than 5 seconds; ignore
-            // not in the idle stage don't operate button
-        }
+        // } else 
+        // {
+        //     // been less than 5 seconds; ignore
+        //     // not in the idle stage don't operate button
+
+        // }
         
     }
     

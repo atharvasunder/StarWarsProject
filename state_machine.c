@@ -115,32 +115,30 @@ void state_machine(event newevent){
     switch (current_state.type){
         case IDLE:
             
-            if (idle_start_flag == 0){
+            strip_color.r = 0;
+            strip_color.g = 0;
+            strip_color.b = 255;
 
-                strip_color.r = 0;
-                strip_color.g = 0;
-                strip_color.b = 255;
+            // turn on LED strip bottom light
+            set_n_leds(&strip_color, leds, 1);
 
-                // turn on LED strip bottom light
-                set_n_leds(&strip_color, leds, 1);
+            // start timeout for LED strip
+            // START_TIMEOUT: event name
+            // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
+            // 1000: delay duration in milli seconds     
+            // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
-                // start timeout for LED strip
-                // START_TIMEOUT: event name
-                // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
-                // 1000: delay duration in milli seconds     
-                // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
+            // turn on speaker (start the music)
 
-                // turn on speaker (start the music)
+            // start timeout for speaker
+            // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
+            // @ korell need to choose a delay duration based on the music
 
-                // start timeout for speaker
-                // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
-                // @ korell need to choose a delay duration based on the music
-
-                // set the flag
-                idle_start_flag = 1;
-            }
+            // set the flag
+            idle_start_flag = 1;
             
             if (newevent.type == BUTTON_PRESSED){
+
                 current_state.type = SABER_INITIALIZE;
 
                 // turn off led strip (don't want led strip to affect phototransistor readings)
@@ -148,8 +146,7 @@ void state_machine(event newevent){
 
                 //turn off chill intro music
 
-                saber_init_flag = 0;
-
+                enqueue_event(START_TIMEOUT, 3, 500);
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -185,7 +182,7 @@ void state_machine(event newevent){
                 // play speaker sound (beep indicating one led is on)
 
                 // keep LED on for 0.5s
-                enqueue_event(START_TIMEOUT, 3, 500);
+                enqueue_event(START_TIMEOUT, 3, 1000);
 
                 saber_init_flag = 1;
                 led1_flag       = 1;
@@ -207,7 +204,7 @@ void state_machine(event newevent){
                         clear_LED_Red();
 
                         set_LED_Blue();
-                        enqueue_event(START_TIMEOUT, 3, 500);
+                        enqueue_event(START_TIMEOUT, 3, 1000);
 
                         saber_init_flag = 2;
                     }
@@ -218,7 +215,7 @@ void state_machine(event newevent){
                         clear_LED_Blue();
 
                         set_LED_Green();
-                        enqueue_event(START_TIMEOUT, 3, 500);
+                        enqueue_event(START_TIMEOUT, 3, 1000);
 
                         saber_init_flag = 3;
                     }
@@ -228,7 +225,7 @@ void state_machine(event newevent){
                         clear_LED_Green();
 
                         set_LED_Yellow();
-                        enqueue_event(START_TIMEOUT, 3, 500);
+                        enqueue_event(START_TIMEOUT, 3, 1000);
 
                         saber_init_flag = 4;
                     }

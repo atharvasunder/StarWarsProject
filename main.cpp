@@ -51,6 +51,8 @@ int main (void)
     while(1){
         timeoutCheck();
         service_event_queue();
+        pc.printf("%d1 \n", current_time_ms());
+        
     }
 }
 #endif

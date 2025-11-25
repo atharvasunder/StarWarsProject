@@ -37,6 +37,8 @@
 
 /* TIM4 IRQ: vector table position 37 → ISER[1] bit (37 - 32 = 5) */
 #define TIM4_INTERRUPT_BIT_ISER1                    (1UL << 5)
+#define TIM4_INTERRUPT_BIT_ISER0                    (1UL << 30U)
+
 
 /* TIM4_CR1 Bit Definitions */
 #define TIM4_CR1_CEN        (1U << 0)    /* Counter Enable */
