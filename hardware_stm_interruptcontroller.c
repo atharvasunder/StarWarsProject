@@ -22,7 +22,6 @@
 
 
 /* Button Interrupt flags */
-volatile int16_t buttonPressFlag       = 0;
 volatile int32_t pressedTime           = 0;
 
 
@@ -64,15 +63,15 @@ void EXTI9_5_IRQHandler(void)
         // Debouncing 
         
         
-
-        if (currentTime - pressedTime < 5000 || current_state.type != IDLE)
-        {
-            // been less than 5 seconds; ignore
-            // not in the idle stage don't operate button
-        } else 
+        if (currentTime - pressedTime > 5000)
         {
             enqueue_event(BUTTON_PRESSED, 1, 1);
             pressedTime = currentTime;
+            
+        } else 
+        {
+            // been less than 5 seconds; ignore
+            // not in the idle stage don't operate button
         }
         
     }
