@@ -40,7 +40,8 @@ void initTimer3PWM(uint16_t prescalervalue, uint16_t autoreloadvalue)
     // if (duty_cycle > 1.0f) { duty_cycle = 1.0f; }
     
     /* Set Compare value for  duty cycle */
-    TIM3_CCR2 = (uint16_t)((float)autoreloadvalue);  // 
+    // TIM3_CCR2 = (uint16_t)((float)autoreloadvalue);  // 
+    TIM3_CCR2 = 0;
     
     /* Configure Channel 2 as Output */
     TIM3_CCMR1 = TIM3_CCMR1 & ~TIM3_CCMR1_CC2S_MASK;        // Clear CC2S bits

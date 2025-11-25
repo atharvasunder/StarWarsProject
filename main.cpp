@@ -50,10 +50,7 @@ int main (void)
     /*Keep servicing event queue and checking for timeouts*/
     while(1){
         timeoutCheck();
-        service_event_queue();
-
-        uint16_t size = get_event_queue_length();
-        pc.printf("%d \n", size);        
+        service_event_queue();     
     }
 }
 #endif

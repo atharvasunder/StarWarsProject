@@ -127,7 +127,7 @@
 #define TIM3_CCMR1_OC1M_TOGGLE  (0x3 << 4)  // OC1M = 011 (Toggle mode)
 #define TIM3_CCMR1_OC1M_PWM1    (0x6 << 4)  // OC1M = 110 (PWM mode 1)
 #define TIM3_CCMR1_OC2M_PWM1    (0x6 << 12)  // OC2M = 110 (PWM mode 1)
-#define TIM3_CCMR1_OC1M_PWM2    (0x7 << )  // OC1M = 111 (PWM mode 2)
+#define TIM3_CCMR1_OC1M_PWM2    (0x7 << 4)  // OC1M = 111 (PWM mode 2)
 
 // TIM3_CCMR1 Bit Clear Masks
 #define TIM3_CCMR1_CC2S_MASK    (0x3 << 8)   /* CC2S bits [9:8] */

@@ -157,6 +157,6 @@ void LED_state_set(uint32_t input)
 
 uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
 
-    return 1;
+    return 2;
 }
 

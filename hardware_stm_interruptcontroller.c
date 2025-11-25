@@ -60,11 +60,10 @@ void EXTI9_5_IRQHandler(void)
         /* Clear the EXTI6 pending bit by writing 1 */
         EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
 
-
         int32_t currentTime = current_time_ms();
 
         // debouncing 
-        if ((currentTime - pressedTime) > 50)
+        if ((currentTime - pressedTime) > 500)
         {
             pressedTime = currentTime;
             enqueue_event(BUTTON_PRESSED, 1, 1);

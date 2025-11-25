@@ -56,7 +56,7 @@
 #define DMA1_STREAM5_PAR      (*(volatile uint32_t *)(DMA1_BASE_ADDRESS + 0x18 + 0x78))
 #define DMA1_STREAM5_M0AR     (*(volatile uint32_t *)(DMA1_BASE_ADDRESS + 0x1C + 0x78))
 #define DMA1_STREAM5_M1AR     (*(volatile uint32_t *)(DMA1_BASE_ADDRESS + 0x20 + 0x78))
-#define DMA1_STREAM5_FCR      (*(volatile uint32_t *)(DMA1_BASE_ADDRESS + 0x24 + + 0x78))
+#define DMA1_STREAM5_FCR      (*(volatile uint32_t *)(DMA1_BASE_ADDRESS + 0x24 + 0x78))
 
 // DMA2 Stream 2 Registers
 #define DMA2_STREAM2_CR   (*(volatile uint32_t *)(DMA2_BASE_ADDRESS + 0x50))

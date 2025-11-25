@@ -115,28 +115,31 @@ void state_machine(event newevent){
     switch (current_state.type){
         case IDLE:
             
-            strip_color.r = 0;
-            strip_color.g = 0;
-            strip_color.b = 255;
+            if (idle_start_flag == 0){
 
-            // turn on LED strip bottom light
-            set_n_leds(&strip_color, leds, 1);
+                strip_color.r = 0;
+                strip_color.g = 0;
+                strip_color.b = 255;
 
-            // start timeout for LED strip
-            // START_TIMEOUT: event name
-            // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
-            // 1000: delay duration in milli seconds     
-            // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
+                // turn on LED strip bottom light
+                set_n_leds(&strip_color, leds, 2);
 
-            // turn on speaker (start the music)
+                // start timeout for LED strip
+                // START_TIMEOUT: event name
+                // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
+                // 1000: delay duration in milli seconds     
+                // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
-            // start timeout for speaker
-            // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
-            // @ korell need to choose a delay duration based on the music
+                // turn on speaker (start the music)
 
-            // set the flag
-            idle_start_flag = 1;
-            
+                // start timeout for speaker
+                // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
+                // @ korell need to choose a delay duration based on the music
+
+                // set the flag
+                idle_start_flag = 1;
+            }
+
             if (newevent.type == BUTTON_PRESSED){
 
                 current_state.type = SABER_INITIALIZE;
@@ -235,6 +238,7 @@ void state_machine(event newevent){
                         clear_LED_Yellow();
 
                         saber_init_flag = 0;
+                        led_on_count = 0;
 
                         gummy_color = gummy_to_saber(gummy_responses, 4);
 
@@ -252,7 +256,6 @@ void state_machine(event newevent){
         break;
 
         case SABER_READY:
-            set_LED_Red();
 
             if (saber_start_flag == 0){
                 
@@ -260,8 +263,9 @@ void state_machine(event newevent){
 
                 // turn on first led in strip, update led_count variable by 1
                 set_n_leds(&strip_color, leds, led_on_count);
+                
                 // start led_strip timeout request
-                enqueue_event(START_TIMEOUT, 1, 200);
+                enqueue_event(START_TIMEOUT, 1, 5);
 
                 // start playing sound
 
@@ -288,9 +292,10 @@ void state_machine(event newevent){
                     // if number of leds on < 60, turn on the required number of leds
                     // else, dont do anything
                     if (led_on_count <= NUM_OF_LEDS){
+                        led_on_count++;
                         set_n_leds(&strip_color, leds, led_on_count);
                         // start a new timeout - keep blade on
-                        enqueue_event(START_TIMEOUT, 1, 500);
+                        enqueue_event(START_TIMEOUT, 1, 5);
                     }
 
 
@@ -307,13 +312,19 @@ void state_machine(event newevent){
             break;
 
         case IN_GAME_WAITING:  
-            set_LED_Yellow();
-            // if (newevent.type == BUTTON_PRESSED){
-            //     current_state.type = IDLE;
+            if (newevent.type == BUTTON_PRESSED){
+                current_state.type = IDLE;
+                debugprintHelloWorld();
+                clear_LED_Red();
+                clear_LED_Yellow();
+
+                saber_start_flag = 0;
+                led_on_count = 0;
+                idle_start_flag = 0;
 
             // // start reading accelerometer
 
-            // }
+            }
             break;
 
     }
@@ -329,7 +340,7 @@ void get_strip_colour(uint16_t gummy_color){
 
     else if (gummy_color == 1){
         strip_color.r = 0;
-        strip_color.g = 1;
+        strip_color.g = 255;
         strip_color.b = 0;
     }
 

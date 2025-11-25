@@ -20,3 +20,8 @@ void debugprintFullQueue(void)
     // For example, if you have a debug printf:
     // debug_printf("Event queue is full!\n");
 }
+
+void debugprintHelloWorld( void )
+{
+    printf("I'm aliiiiiivveeee!!!\n");
+} 
