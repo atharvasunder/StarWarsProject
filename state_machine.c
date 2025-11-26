@@ -80,7 +80,8 @@ void init_state_machine(void) {
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
-        initTimer2_CH2_PWM();      
+        initGpioBxAsAF1(3); //PB3 as AF1 connects to CH2
+        initTimer2_CH2_PWM(); // timer2 as PWM    
 
 
     /* HILT */
