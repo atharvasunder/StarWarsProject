@@ -38,6 +38,11 @@ void clear_LED_Yellow(void);
 void init_phototransistor(void);
 uint16_t read_phototransistor(void);
 
+uint16_t gummy_to_saber(uint16_t *array, uint8_t len);
+
+
+void init_gummy_flags(void);
+
 
 #ifdef __cplusplus
 }

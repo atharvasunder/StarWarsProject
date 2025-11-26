@@ -29,6 +29,23 @@ void init_event_queue(void) {
     game_queue.end_index = -1;
 }
 
+uint16_t get_event_queue_length(void) 
+{
+    if (queue_is_empty()) {
+        return 0;
+    }
+
+    if (game_queue.end_index >= game_queue.start_index) {
+        // No wrap-around: [start ... end]
+        return (uint16_t)(game_queue.end_index - game_queue.start_index + 1);
+    } else {
+        // Wrapped: [start ... MAX-1] and [0 ... end]
+        return (uint16_t)((MAX_EVENT_QUEUE_SIZE - game_queue.start_index) +
+                          (game_queue.end_index + 1));
+    }
+}
+
+
 void enqueue_event(event_type t, uint16_t param1, double param2) {
     
     event e;

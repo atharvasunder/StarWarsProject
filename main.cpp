@@ -23,8 +23,8 @@
 Serial pc(USBTX, USBRX);
 /* TEMPORARY */
 
-#define buttontest
-// #define main
+// #define buttontest
+#define mama
 
 #ifdef buttontest
 int main (void)
@@ -39,7 +39,7 @@ int main (void)
 
 #endif
 
-#ifdef main
+#ifdef mama
 int main (void)
 {
     /*initialize the event queue and state machine*/
@@ -50,7 +50,7 @@ int main (void)
     /*Keep servicing event queue and checking for timeouts*/
     while(1){
         timeoutCheck();
-        service_event_queue();
+        service_event_queue();     
     }
 }
 #endif

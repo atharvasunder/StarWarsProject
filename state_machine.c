@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    led_state_machine.c 
-  * @author  Group 3
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
   * @date    November-2025
   * @brief   Contains functions for reasoning about state transitions
@@ -10,9 +10,12 @@
 
 #include "events.h"
 #include "gummy_led_utils.h"
+#include "led_strip_utils.h"
 #include "hardware_stm_interruptcontroller.h"
 #include "state_machine.h"
 #include "stdint.h"
+#include "hardware_stm_gpio.h"
+#include "hardware_stm_timer3.h"
 #include "debug_mort.h"
 #include "global_time.h"
 #include "hardware_stm_timer2.h"
@@ -36,8 +39,15 @@ uint16_t gummy_responses[4];
 uint16_t gummy_color;
 
 // for turning on saber blade
-uint8_t saber_start_flag = 0;
-uint16_t led_on_count = 0;  // for counting how many leds have turned on
+uint8_t  saber_start_flag = 0; //
+uint16_t led_on_count     = 0;  // for counting how many leds have turned on
+uint8_t  saber_init_flag  = 0;  // whether initialized or not
+
+// initialize strip leds array
+neopixel_led leds[NUM_OF_LEDS];
+
+// led strip idle colour
+rgb_color strip_color;
 
 void init_state_machine(void) {
 
@@ -77,7 +87,8 @@ void init_state_machine(void) {
 
     /* BLADE */
         // initialize pins for LED strip
-
+        initGpioBxAsAF2(5); // PB5 as alternative function 2 for PWM
+        initTimer3PWM(8, 13);   // 8: PSC, 13: ARR
 
     /* BLADE */
 
@@ -99,7 +110,6 @@ void init_state_machine(void) {
         // initialize target timer encoder                   X
 
     /* TARGET BOARD */
-
     current_state.type = IDLE;
 }
 
@@ -109,34 +119,40 @@ void state_machine(event newevent){
         case IDLE:
             
             if (idle_start_flag == 0){
+
+                strip_color.r = 0;
+                strip_color.g = 0;
+                strip_color.b = 255;
+
                 // turn on LED strip bottom light
+                set_n_leds(&strip_color, leds, 2);
 
                 // start timeout for LED strip
                 // START_TIMEOUT: event name
                 // 1: device that requires the delay, 1: led_strip, 2: speaker, 3: gummy LED
                 // 1000: delay duration in milli seconds     
-                enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
+                // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
                 // turn on speaker (start the music)
 
                 // start timeout for speaker
-                enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
+                // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
                 // @ korell need to choose a delay duration based on the music
 
                 // set the flag
                 idle_start_flag = 1;
             }
-            
+
             if (newevent.type == BUTTON_PRESSED){
+
                 current_state.type = SABER_INITIALIZE;
 
                 // turn off led strip (don't want led strip to affect phototransistor readings)
+                reset_all_leds(leds);
 
                 //turn off chill intro music
 
-                // reset the idle flag to zero
-                idle_start_flag = 0;
-
+                enqueue_event(START_TIMEOUT, 3, 500);
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -160,157 +176,106 @@ void state_machine(event newevent){
                 }  
             }   
 
+            break;
+
 
         case SABER_INITIALIZE:  // for cycling through leds and determining gummy bear colour
             
-            if (led1_flag == 0){
+            if (saber_init_flag == 0) {
                 // turn on LED1
                 set_LED_Red();
 
                 // play speaker sound (beep indicating one led is on)
 
+                // keep LED on for 0.5s
+                enqueue_event(START_TIMEOUT, 3, 1000);
 
-                // keep red LED on for 0.5s
-                enqueue_event(START_TIMEOUT, 3, 500);
-                
-                // read Transistor
-                gummy_responses[0] = read_phototransistor();
+                saber_init_flag = 1;
+                led1_flag       = 1;
 
-                led1_flag = 1;
             } 
-            
-            
-            if (led2_flag == 0) {
-                // clear Red (previous LED)
-                clear_LED_Red();
-                // turn on LED2
-                set_LED_Blue();
-                // play speaker sound
 
-                // keep blue LED on for 0.5s
-                enqueue_event(START_TIMEOUT, 3, 500);
-                // read Transistor 
-
-
-                led2_flag = 1;
-            }
-
-            if (led3_flag == 0) {
-                // turn on LED3
-                set_LED_Green();
-
-            }
-
-            if (led4_flag == 0) {
-                // turn on LED4
-                set_LED_Yellow();
-            }
-
-
-            
-            if (newevent.type == COLOUR_DETECTED){  // can divide these events into individual colour events
-                current_state.type = SABER_READY;
-            }
-
-            else if (newevent.type == START_TIMEOUT){
+            // delay for .5 s
+            if (newevent.type == START_TIMEOUT) {
                 insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
             }
+            
 
-            else if (newevent.type == TIMEOUT){
-                
-                // here we use a common timeout event for the led strip and the speaker
-                // because we want the speaker to blick as the individual gummy leds light up. 
-                // That is why param1 does not really matter here
+            else if (newevent.type == TIMEOUT) {
 
-                if (gummy_responses == {0, 0, 1, 0}){
+                if (newevent.param1 == 3) { 
+                    if (saber_init_flag == 1) { // started
+                        // LED1 done 
+                        gummy_responses[0] = read_phototransistor();
+                        clear_LED_Red();
 
-                    // read input from phototransistor circuit, store in an array
+                        set_LED_Blue();
+                        enqueue_event(START_TIMEOUT, 3, 1000);
 
-                    // turn off led1
-
-                    // turn on led2
-
-                    // play speaker beep
-
-                    // start time pause
-
-                    led2_flag = 1;
-                }
-
-                else if(gummy_responses == {} ){
-                    
-                    // read input from phototransistor circuit, store in an array
-
-                    // turn off led2
-
-                    // turn on led3
-
-                    // play speaker beep
-
-                    // start time pause
-
-                    led3_flag = 1;
-                }
-
-                else if(gummy_responses == ){
-                    
-                    // read input from phototransistor circuit, store in an array
-
-                    // turn off led3
-
-                    // turn on led4
-
-                    // play speaker beep
-
-                    // start time pause
-
-                    led4_flag = 1;
-                }
-
-                else if (gummy_responses){
-                        
-                    // read input from phototransistor circuit, store in an array
-
-                    // turn off led4
-
-                    // reset flags
-                    led1_flag = led2_flag = led3_flag = led4_flag = 0;
-
-                    // compute gummy color using responses in the array
-                    // store gummy color in the gummy_color variable (declared above)
-
-                    // if gummy color is valid: enqueue color detected event
-                    // else enqueue no color detected event
-                    
+                        saber_init_flag = 2;
                     }
 
+                    else if (saber_init_flag == 2) {
+                        // LED2 done
+                        gummy_responses[1] = read_phototransistor();
+                        clear_LED_Blue();
+
+                        set_LED_Green();
+                        enqueue_event(START_TIMEOUT, 3, 1000);
+
+                        saber_init_flag = 3;
+                    }
+
+                    else if (saber_init_flag == 3) {
+                        gummy_responses[2] = read_phototransistor();
+                        clear_LED_Green();
+
+                        set_LED_Yellow();
+                        enqueue_event(START_TIMEOUT, 3, 1000);
+
+                        saber_init_flag = 4;
+                    }
+
+                    else if (saber_init_flag == 4) {
+                        gummy_responses[3] = read_phototransistor();
+                        clear_LED_Yellow();
+
+                        saber_init_flag = 0;
+                        led_on_count = 0;
+
+                        gummy_color = gummy_to_saber(gummy_responses, 4);
+
+                    if (gummy_color != 0) {
+                        // gummy detected
+                        enqueue_event(COLOUR_DETECTED, gummy_color, 0);
+                        current_state.type = SABER_READY;
+                    } else {
+                        // no color detected
+                        current_state.type = IDLE;
+                    }
+                }
             }
-
-            else if (newevent.type == NO_COLOUR_DETECTED){
-                current_state.type = IDLE;
-            }
-
-            // turn on each led successively followed by a manual delay
-
-            // read each leds response, store it in an array or sth
-
-            // pass array into a logic function to get the colour/no colour
-
-            // enqueue resulting event into event queue
+        }
+        break;
 
         case SABER_READY:
 
             if (saber_start_flag == 0){
-                // turn on first led in strip, update led_count variable by 1
+                
+                get_strip_colour(gummy_color);  // updates the global variable strip_color with the required gummy color
 
+                // turn on first led in strip, update led_count variable by 1
+                set_n_leds(&strip_color, leds, led_on_count);
+                
                 // start led_strip timeout request
-                enqueue_event(START_TIMEOUT, 1, 200);
+                enqueue_event(START_TIMEOUT, 1, 5);
 
                 // start playing sound
 
                 // start speaker timeout request
 
                 saber_start_flag = 1;
+                led_on_count ++;
 
             }
 
@@ -326,29 +291,71 @@ void state_machine(event newevent){
 
             else if (newevent.type == TIMEOUT){
                 if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
                     // if number of leds on < 60, turn on the required number of leds
                     // else, dont do anything
+                    if (led_on_count <= NUM_OF_LEDS){
+                        led_on_count++;
+                        set_n_leds(&strip_color, leds, led_on_count);
+                        // start a new timeout - keep blade on
+                        enqueue_event(START_TIMEOUT, 1, 5);
+                    }
 
-                    // start a new timeout
-                    enqueue_event(START_TIMEOUT, 1, 1000);
+
 
                 }
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     // play speaker (send 1 set of bits before the next timeout)
-                    // if number of leds >= 60, dont do anything, dont start another delay too
 
                     // start a new timeout
                     enqueue_event(START_TIMEOUT, 2, 1000);
                 }  
             }   
+            break;
 
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IDLE;
+                debugprintHelloWorld();
+                clear_LED_Red();
+                clear_LED_Yellow();
 
-            // start reading accelerometer
+                saber_start_flag = 0;
+                led_on_count = 0;
+                idle_start_flag = 0;
+
+            // // start reading accelerometer
 
             }
+            break;
+
+    }
+
+}
+
+void get_strip_colour(uint16_t gummy_color){
+    if (gummy_color == 0){
+        strip_color.r = 255;
+        strip_color.g = 0;
+        strip_color.b = 0;
+    }
+
+    else if (gummy_color == 1){
+        strip_color.r = 0;
+        strip_color.g = 255;
+        strip_color.b = 0;
+    }
+
+    else if (gummy_color == 2){
+        strip_color.r = 0;
+        strip_color.g = 0;
+        strip_color.b = 255;
+    }
+
+    else if (gummy_color == 3){
+        strip_color.r = 100;
+        strip_color.g = 100;
+        strip_color.b = 0;
     }
 }
