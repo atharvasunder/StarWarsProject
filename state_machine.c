@@ -15,6 +15,7 @@
 #include "stdint.h"
 #include "debug_mort.h"
 #include "global_time.h"
+#include "hardware_stm_timer2.h"
 #include <stdbool.h>
 
 // Define the global variables
@@ -69,6 +70,8 @@ void init_state_machine(void) {
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
+        initTimer2_CH2_PWM();      
+
 
     /* HILT */
 
