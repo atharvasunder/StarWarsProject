@@ -7,11 +7,15 @@
 
 void initTimer2_CH2_PWM( void )
 {
+    /* 2. TIM2 Peripheral clock enable (Timer is on APB1 bus) */
+    // Uses the function from your header
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    
     uint32_t * reg_pointer;
 
     /* 1. Set Timer Frequency (Time Base) */
     reg_pointer = (uint32_t*)TIM2_PRESCALER_REGISTER;
-    *reg_pointer = 45;
+    *reg_pointer = 89;
     reg_pointer = (uint32_t*)TIM2_AUTORELOAD_REGISTER;
     *reg_pointer = 999;
 

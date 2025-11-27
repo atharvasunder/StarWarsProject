@@ -195,6 +195,7 @@ void initGpioBxAsAF2(uint16_t x)
     }
 }
 
+
 void initGpioCxAsAF2(uint16_t x)
 {   
     // Step 1: Enable the AHB1 clock for GPIOC

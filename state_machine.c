@@ -8,6 +8,7 @@
   ******************************************************************************
 */
 
+#include "debug_mort.h"
 #include "events.h"
 #include "gummy_led_utils.h"
 #include "led_strip_utils.h"
@@ -16,9 +17,9 @@
 #include "stdint.h"
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_timer3.h"
-#include "debug_mort.h"
 #include "global_time.h"
 #include "hardware_stm_timer2.h"
+#include "audio.h"
 #include <stdbool.h>
 
 // Define the global variables
@@ -135,9 +136,11 @@ void state_machine(event newevent){
                 // enqueue_event(START_TIMEOUT, 1, 1000);   // enque timeout request
 
                 // turn on speaker (start the music)
+                resetMusicCounter();
+                uint16_t duration_to_wait = playMusicFunction();
 
                 // start timeout for speaker
-                // enqueue_event(START_TIMEOUT, 2, 1000);   // enque timeout request
+                enqueue_event(START_TIMEOUT, 2, duration_to_wait);   // enque timeout request, fill up delay duration 
                 // @ korell need to choose a delay duration based on the music
 
                 // set the flag
@@ -170,10 +173,15 @@ void state_machine(event newevent){
                 }
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
                     // play speaker (send 1 set of bits before the next timeout)
+                    uint16_t duration_to_wait = playMusicFunction();
 
-                    // start a new timeout
-                    enqueue_event(START_TIMEOUT, 2, 1000);
+                    // debugprintHelloWorld();
+
+                    // start timeout for speaker
+                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
                 }  
             }   
 
@@ -318,7 +326,7 @@ void state_machine(event newevent){
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IDLE;
-                debugprintHelloWorld();
+                // debugprintHelloWorld();
                 clear_LED_Red();
                 clear_LED_Yellow();
 
