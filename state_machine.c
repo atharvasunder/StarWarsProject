@@ -58,7 +58,6 @@ void init_state_machine(void) {
 
     /* GENERAL */
 
-
     /* HILT */
 
     // initialize pins for gummy LEDs and phototransistor circuit output as input to nucleo
@@ -297,8 +296,6 @@ void state_machine(event newevent){
                         // start a new timeout - keep blade on
                         enqueue_event(START_TIMEOUT, 1, 5);
                     }
-
-
 
                 }
 
