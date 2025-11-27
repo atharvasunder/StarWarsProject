@@ -127,6 +127,41 @@ void initGpioCxAsInputNoPull(uint16_t x)
     PORTC_PUPDR = PORTC_PUPDR & ~(3UL << (2U * x));
 }
 
+void initGpioBxAsAF1(uint16_t x)
+{
+    // Step 1: Enable the AHB1 clock for GPIOB
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    
+    // Step 2: Set MODERx to Alternate Function mode (10)
+    // (This remains "10" regardless of which AF you select later)
+    PORTB_MODER = PORTB_MODER & ~(3UL << (x * 2));  // Clear bits
+    PORTB_MODER = PORTB_MODER | (2UL << (x * 2));   // Set to 10 (Alternate Function)
+    
+    // Step 3: Set Port B pin x to push-pull
+    PORTB_OTYPER = PORTB_OTYPER & ~(1UL << x);  // 0 = Push-pull
+    
+    // Step 4: Set Port B pin x to High Speed
+    PORTB_OSPEEDR = PORTB_OSPEEDR & ~(3UL << (x * 2));  // Clear bits
+    PORTB_OSPEEDR = PORTB_OSPEEDR | (2UL << (x * 2));   // 10 = High speed
+    
+    // Step 5: No pull-up or pull-down
+    PORTB_PUPDR = PORTB_PUPDR & ~(3UL << (x * 2));  // 00 = No pull-up, no pull-down
+    
+    // Step 6: Set Port B pin x to Alternative Function 1 (TIM1 / TIM2)
+    if (x < 8U)
+    {
+        PORTB_AFRL = PORTB_AFRL & ~(0xFUL << (x * 4));  // Clear AFRL bits
+        PORTB_AFRL = PORTB_AFRL | (1UL << (x * 4));     // Set to 0001 (AF1) <-- CHANGED
+    }
+    else
+    {
+        uint32_t y = (uint32_t)x - 8U;
+        PORTB_AFRH = PORTB_AFRH & ~(0xFUL << (y * 4));  // Clear AFRH bits 
+        PORTB_AFRH = PORTB_AFRH | (1UL << (y * 4));     // Set to 0001 (AF1) <-- CHANGED
+    }
+}
+
+
 void initGpioBxAsAF2(uint16_t x)
 {
     // Step 1: Enable the AHB1 clock for GPIOB
@@ -159,6 +194,7 @@ void initGpioBxAsAF2(uint16_t x)
         PORTB_AFRH = PORTB_AFRH | (2UL << (y * 4));   // Set to 10 (AF2)
     }
 }
+
 
 void initGpioCxAsAF2(uint16_t x)
 {   

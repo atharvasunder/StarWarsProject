@@ -12,6 +12,7 @@
 #include "gummy_led_utils.h"
 #include "stdint.h"
 #include "hardware_stm_interruptcontroller.h"
+#include "hardware_stm_adc.h"
 
 /************************************
 * Initializes LED1 on the nucleo Board which is connected to Port B Pin 0
@@ -115,11 +116,12 @@ void clear_LED_Yellow( void )
 /* Initialize PF4 as anlog - Phototransistor */
 void init_phototransistor() {
     initGpioFxAsAnalog(4);
+    initADC3();
 }
 
 /* Read Photo transistor value */
 uint16_t read_phototransistor() {
-    return 0;
+    return readADC3Channel(14);
 }
 
 
@@ -157,6 +159,6 @@ void LED_state_set(uint32_t input)
 
 uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
 
-    return 1;
+    return 2;
 }
 

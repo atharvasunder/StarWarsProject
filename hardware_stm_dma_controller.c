@@ -33,12 +33,14 @@ static void (*dma_transfer_complete_callback)(void) = 0;
 
 
 void initDMAForTimer3Channel2(void){
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
 
     volatile uint32_t *stream_cr = &DMA1_STREAM5_CR;
     volatile uint32_t *stream_ndtr = &DMA1_STREAM5_NDTR; 
     volatile uint32_t *stream_par = &DMA1_STREAM5_PAR;
     volatile uint32_t *stream_m0ar = &DMA1_STREAM5_M0AR;
-    volatile uint32_t *stream_fcr = &DMA2_STREAM0_FCR;
+    volatile uint32_t *stream_fcr = &DMA1_STREAM5_FCR;
 
 
     /* Disable stream before config */
@@ -46,8 +48,8 @@ void initDMAForTimer3Channel2(void){
     while (*stream_cr & DMA_SxCR_EN);
 
     /* Reset (reset value = 0, just as for safety) */ 
-    // *stream_cr = 0;
-    // *stream_fcr = 0;
+    *stream_cr = 0;
+    *stream_fcr = 0;
 
     /* Channel selection and configuration */
     *stream_cr |= DMA_CHANNEL(5);
@@ -63,7 +65,7 @@ void initDMAForTimer3Channel2(void){
     *stream_ndtr = MESSAGE_LENGTH;
 
     // peripheral address
-    *stream_par  = TIM3_CCR2;          // should be timer3 CCR2
+    *stream_par  = (uint32_t)&TIM3_CCR2;          // should be timer3 CCR2
 
     // memory address
     *stream_m0ar = (uint32_t)get_led_message_address();    // insert address
@@ -74,7 +76,9 @@ void enableDMAForTimer3Channel2(void){
     volatile uint32_t *stream_ndtr = &DMA1_STREAM5_NDTR; 
     volatile uint32_t *stream_par = &DMA1_STREAM5_PAR;
     volatile uint32_t *stream_m0ar = &DMA1_STREAM5_M0AR;
-    volatile uint32_t *stream_fcr = &DMA2_STREAM0_FCR;
+    volatile uint32_t *stream_fcr = &DMA1_STREAM5_FCR;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 
     /* Disable stream before config */
     *stream_cr &= ~DMA_SxCR_EN;
@@ -84,8 +88,8 @@ void enableDMAForTimer3Channel2(void){
     dma_clear_flags();
 
     /* Reset (reset value = 0, just as for safety) */ 
-    // *stream_cr = 0;
-    // *stream_fcr = 0;
+    *stream_cr = 0;
+    *stream_fcr = 0;
 
     /* Channel selection and configuration */
     *stream_cr |= DMA_CHANNEL(5);
@@ -101,7 +105,7 @@ void enableDMAForTimer3Channel2(void){
     *stream_ndtr = MESSAGE_LENGTH;
 
     // peripheral address
-    *stream_par  = TIM3_CCR2;          // should be timer3 CCR2
+    *stream_par  = (uint32_t)&TIM3_CCR2;          // should be timer3 CCR2
 
     // memory address
     *stream_m0ar = (uint32_t)get_led_message_address();    // insert address
@@ -115,6 +119,7 @@ void enableDMAForTimer3Channel2(void){
  * ==========================================================================*/
 void dma_stop_all(void)
 {
+    DMA1_STREAM5_CR &= ~DMA_SxCR_EN;
     DMA2_STREAM0_CR &= ~DMA_SxCR_EN;
     DMA2_STREAM2_CR &= ~DMA_SxCR_EN;
 }

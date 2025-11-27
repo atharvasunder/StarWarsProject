@@ -53,7 +53,7 @@ typedef struct
 #define LED_LOGICAL_ONE  9
 #define LED_LOGICAL_ZERO 4
 
-#define NUM_OF_LEDS 60
+#define NUM_OF_LEDS 144
 #define COLOR_SET_CYCLES 60        // conservative number of pwm cycles that make up 75 micro seconds (= 75/1.3)
 
 #define MESSAGE_LENGTH (NUM_OF_LEDS*24 + COLOR_SET_CYCLES)

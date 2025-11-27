@@ -122,6 +122,7 @@ void initGpioAxAsAF4(uint8_t);
 void initGpioCxAsAF4(uint8_t);
 void initGpioFxAsAF4(uint8_t);
 void initGpioHxAsAF4(uint8_t);
+void initGpioBxAsAF1(uint16_t);
 
 #ifdef __cplusplus
 }
