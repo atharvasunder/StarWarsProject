@@ -34,6 +34,7 @@ void set_LED_Blue(void);
 void clear_LED_Blue(void);
 void set_LED_Yellow(void);
 void clear_LED_Yellow(void);
+uint8_t converted_phototransistor(uint16_t);
 
 void init_phototransistor(void);
 uint16_t read_phototransistor(void);

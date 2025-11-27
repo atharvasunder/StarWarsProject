@@ -68,7 +68,7 @@ void init_state_machine(void) {
         init_LED_Blue();
         init_LED_Red();
         init_LED_Green();
-        init_LED_Yellow();
+        // init_LED_Yellow();
 
         // init phototransistor
         init_phototransistor();
@@ -251,7 +251,13 @@ void state_machine(event newevent){
                         saber_init_flag = 0;
                         led_on_count = 0;
 
+                        for (uint8_t i = 0; i < 4; i++) {
+                            printf("\n%d", gummy_responses[i]);
+                            }
+
                         gummy_color = gummy_to_saber(gummy_responses, 4);
+
+
 
                     if (gummy_color != 0) {
                         // gummy detected
@@ -271,7 +277,6 @@ void state_machine(event newevent){
             if (saber_start_flag == 0){
                 
                 get_strip_colour(gummy_color);  // updates the global variable strip_color with the required gummy color
-
                 // turn on first led in strip, update led_count variable by 1
                 set_n_leds(&strip_color, leds, led_on_count);
                 

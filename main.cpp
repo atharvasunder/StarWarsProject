@@ -32,8 +32,11 @@ int main (void)
     init_gummy_Input();
     while(1) 
     {
-        int16_t reader = read_INPUT();
-        pc.printf("what is the value, %d\n", reader);
+        // int16_t reader = read_INPUT();
+        init_phototransistor();
+        int16_t photo_analog = read_phototransistor();
+        int8_t converted = converted_phototransistor(photo_analog);
+        pc.printf("what is the value, %d\n", converted);
     }
 }
 
