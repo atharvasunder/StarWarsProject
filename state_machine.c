@@ -28,6 +28,7 @@ float led_response[3]; // for storing inputs from light detection circuit.
 
 // define flags for start of states
 uint8_t idle_start_flag = 0;
+uint8_t in_game_flag = 0;
 
 // for gummy bear LEDs (can turn them on after detecting light from them)
 uint8_t led1_flag = 0; // red
@@ -124,7 +125,8 @@ void state_machine(event newevent){
             if (idle_start_flag == 0){
 
                 saber_init_flag = 0;    // for led cycling to happen everytime from idle state
-
+                in_game_flag = 0;
+                
                 strip_color.r = 0;
                 strip_color.g = 0;
                 strip_color.b = 255;
@@ -456,12 +458,57 @@ void state_machine(event newevent){
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = SABER_TURN_OFF;
 
+
+
                 saber_start_flag = 0;
                 led_on_count = 0;
                 led_off_count = 144;
                 idle_start_flag = 0;
+                
 
             }
+
+            if (in_game_flag == 0){
+
+                // turn on speaker (start imperial march)
+                resetMusicCounter();
+                uint16_t duration_to_wait = playImperialMarch();
+
+                // start timeout for speaker
+                enqueue_event(START_TIMEOUT, 2, duration_to_wait);   // enque timeout request, fill up delay duration 
+                // @ korell need to choose a delay duration based on the music
+
+                // set the flag
+                in_game_flag = 1;
+            }
+
+            else if (newevent.type == START_TIMEOUT){
+                insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
+            }
+
+            else if (newevent.type == TIMEOUT){
+                if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    // toggle strip (for blinking effect)
+
+                    // start a new timeout
+                    enqueue_event(START_TIMEOUT, 1, 1000);
+
+                }
+
+                else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
+                    // play speaker (send 1 set of bits before the next timeout)
+                    uint16_t duration_to_wait = playImperialMarch();
+
+                    // debugprintHelloWorld();
+
+                    // start timeout for speaker
+                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
+                }  
+            }
+        
+
             break;
 
     }
