@@ -68,7 +68,7 @@ void init_state_machine(void) {
         init_LED_Blue();
         init_LED_Red();
         init_LED_Green();
-        // init_LED_Yellow();
+        init_LED_Yellow();
 
         // init phototransistor
         init_phototransistor();
@@ -285,9 +285,11 @@ void state_machine(event newevent){
                 enqueue_event(START_TIMEOUT, 1, 5);
 
                 // start playing sound
-                // uint16_t duration_to_wait = playLightsaberEffect();
+                resetMusicCounter(); 
+                uint16_t duration_to_wait = playLightsaberEffect();
 
                 // start speaker timeout request
+                enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                 saber_start_flag = 1;
                 led_on_count ++;
@@ -319,10 +321,22 @@ void state_machine(event newevent){
                 }
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
-                    // play speaker (send 1 set of bits before the next timeout)
+                
+                    // enqueue_event(START_TIMEOUT, 2, 1000);
 
-                    // start a new timeout
-                    enqueue_event(START_TIMEOUT, 2, 1000);
+                    if (led_on_count <= NUM_OF_LEDS){
+                        // play speaker 
+                        uint16_t duration_to_wait = playLightsaberEffect();
+
+                        // start speaker timeout request
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    }
+
+                    else{
+                        stopAudio(); //turn off lightsaber audio after
+                        resetMusicCounter(); 
+                    }
+
                 }  
             }   
             break;
