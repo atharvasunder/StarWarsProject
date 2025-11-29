@@ -1,5 +1,6 @@
 #include "audio.h"
-#include "hardware_stm_timer2.h" 
+#include "hardware_stm_timer2.h"
+#include "hardware_stm_gpio.h" 
 
 // --- 1. Sound Data Arrays ---
 
@@ -104,22 +105,31 @@ static int main_theme[][2] = {
     {698, 250}, {659, 250}, {698, 250}, {587, 2000} 
 };
 
+// LED Cycling bip sound
+static int LED_scan[][2] = {
+    {2000, 50}, // High pitch tone
+    {0, 10}     // Tiny silence buffer 
+};
 // --- 2. Configuration (Counts & Tempos) ---
 
 // Note Counts
 #define COUNT_MAIN      (sizeof(main_theme) / sizeof(main_theme[0]))
 #define COUNT_IMPERIAL  (sizeof(imperial_march_analog) / sizeof(imperial_march_analog[0]))
 #define COUNT_SABER     (sizeof(lightsaber_effect) / sizeof(lightsaber_effect[0]))
+#define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
 
 // Tempo Dividers (Lower = Slower, Higher = Faster)
 #define TEMPO_MAIN      1  // Slow, cinematic
 #define TEMPO_IMPERIAL  1.0  // Standard march speed
 #define TEMPO_SABER     1  // Fast enough to make "hum" sound continuous
+#define TEMPO_SCAN      1
 
 // State Counters (Separate for each song)
 static int count_main = 0;
 static int count_imperial = 0;
 static int count_saber = 0;
+static int count_scan = 0;
+
 
 // --- 3. Hardware Helper (Private) ---
 static void setHardwareTone(uint32_t freq) {
@@ -143,6 +153,7 @@ void resetMusicCounter(void) {
     count_main = 0;
     count_imperial = 0;// count for imperial
     count_saber = 0;
+    count_scan = 0;
 }
 
 // Call this to silence the speaker immediately
@@ -193,4 +204,23 @@ uint16_t playLightsaberEffect(void) {
     count_saber++;
 
     return (uint16_t)(duration / TEMPO_SABER);
+}
+
+uint16_t playLED_Scan(void){
+    if (count_scan >= COUNT_SCAN) {
+        count_scan = 0; 
+    }
+
+    int freq = LED_scan[count_scan][0];
+    int duration = LED_scan[count_scan][1];
+
+    setHardwareTone(freq);
+    count_saber++;
+
+    return (uint16_t)(duration / TEMPO_SCAN);
+}
+
+void init_speaker(void){
+        initGpioBxAsAF1(3); //PB3 as AF1 connects to CH2
+        initTimer2_CH2_PWM(); // timer2 as PWM  
 }

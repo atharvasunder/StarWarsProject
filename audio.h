@@ -23,6 +23,7 @@ uint16_t playMainTheme(void);
 uint16_t playImperialMarch(void);
 uint16_t playLightsaberEffect(void);
 void stopAudio(void);
+void init_speaker(void);
 
 
 
