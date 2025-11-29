@@ -13,13 +13,15 @@
 /*Function definitions---------------------------------------------------------*/
 
 // Function to play the specific song
-void playImperialMarch(void);
+// void playImperialMarch(void);
 
-void playTone(uint32_t freq, uint32_t duration);
+// void playTone(uint32_t freq, uint32_t duration);
 // extern volatile uint16_t capturedValue_TIM3CH1;
 void resetMusicCounter(void);
-uint16_t playMusicFunction(void);
-
+// uint16_t playMusicFunction(void);
+uint16_t playMainTheme(void);
+uint16_t playImperialMarch(void);
+uint16_t playLightsaberEffect(void);
 
 
 #ifdef __cplusplus

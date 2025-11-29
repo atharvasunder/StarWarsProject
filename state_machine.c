@@ -137,7 +137,7 @@ void state_machine(event newevent){
 
                 // turn on speaker (start the music)
                 resetMusicCounter();
-                uint16_t duration_to_wait = playMusicFunction();
+                uint16_t duration_to_wait = playMainTheme();
 
                 // start timeout for speaker
                 enqueue_event(START_TIMEOUT, 2, duration_to_wait);   // enque timeout request, fill up delay duration 
@@ -175,7 +175,7 @@ void state_machine(event newevent){
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
                     // play speaker (send 1 set of bits before the next timeout)
-                    uint16_t duration_to_wait = playMusicFunction();
+                    uint16_t duration_to_wait = playMainTheme();
 
                     // debugprintHelloWorld();
 
