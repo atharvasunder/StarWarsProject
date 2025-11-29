@@ -52,43 +52,15 @@ static int lightsaber_effect[][2] = {
     {30, 30}, {20, 20}, {10, 20},
     {0, 500} // Silence
 };
-// static int lightsaber_effect[][2] = {
-//     // --- PHASE 1: IGNITION ---
-//     {2000, 20}, {1500, 20}, {1000, 20}, {800, 20}, 
-//     {500, 30},  {400, 30},  {300, 30},  {200, 50}, 
-//     {150, 50},  {120, 50},  {110, 100}, {100, 100}, 
 
-//     // --- PHASE 2: IDLE HUM ---
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
-//     {95, 50}, {100, 50}, {105, 50}, {100, 50},
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
+static int lightsaber_off_effect[][2] = {
 
-//     // --- PHASE 3: THE SWING ---
-//     {110, 30}, {120, 30}, {140, 30}, {160, 30}, 
-//     {180, 40}, {200, 40}, {220, 40},            
-//     {180, 30}, {160, 30}, {140, 30}, {120, 30}, 
-//     {100, 100},                                 
-
-//     // --- PHASE 4: IDLE HUM ---
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
-
-//     // --- PHASE 5: THE CLASH ---
-//     {800, 10}, {1500, 10}, {600, 10}, {2000, 10}, 
-//     {500, 10}, {1200, 10}, {700, 10}, {1800, 10},
-//     {300, 20}, {150, 50}, 
-
-//     // --- PHASE 6: IDLE HUM ---
-//     {98, 50}, {100, 50}, {102, 50}, {100, 50},
-//     {95, 50}, {100, 50}, {105, 50}, {100, 50},
-
-//     // --- PHASE 7: POWER DOWN ---
-//     {90, 50}, {80, 50}, {70, 50}, 
-//     {60, 40}, {50, 40}, {40, 30}, 
-//     {30, 30}, {20, 20}, {10, 20},
-//     {0, 500} 
-// };
+    // --- PHASE 7: POWER DOWN ---
+    {90, 50}, {80, 50}, {70, 50}, 
+    {60, 40}, {50, 40}, {40, 30}, 
+    {30, 30}, {20, 20}, {10, 20},
+    {0, 500} 
+};
 
 // C. Main Theme
 static int main_theme[][2] = {
@@ -117,18 +89,21 @@ static int LED_scan[][2] = {
 #define COUNT_IMPERIAL  (sizeof(imperial_march_analog) / sizeof(imperial_march_analog[0]))
 #define COUNT_SABER     (sizeof(lightsaber_effect) / sizeof(lightsaber_effect[0]))
 #define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
+#define COUNT_SABER_OFF (sizeof(lightsaber_off_effect) / sizeof(lightsaber_off_effect[0]))
 
 // Tempo Dividers (Lower = Slower, Higher = Faster)
 #define TEMPO_MAIN      1  // Slow, cinematic
 #define TEMPO_IMPERIAL  1.0  // Standard march speed
 #define TEMPO_SABER     1  // Fast enough to make "hum" sound continuous
 #define TEMPO_SCAN      1
+#define TEMPO_SABER_OFF 1
 
 // State Counters (Separate for each song)
 static int count_main = 0;
 static int count_imperial = 0;
 static int count_saber = 0;
 static int count_scan = 0;
+static int count_saber_off = 0;
 
 
 // --- 3. Hardware Helper (Private) ---
@@ -154,6 +129,7 @@ void resetMusicCounter(void) {
     count_imperial = 0;// count for imperial
     count_saber = 0;
     count_scan = 0;
+    count_saber_off = 0;
 }
 
 // Call this to silence the speaker immediately
@@ -216,6 +192,20 @@ uint16_t playLED_Scan(void){
 
     setHardwareTone(freq);
     count_saber++;
+
+    return (uint16_t)(duration / TEMPO_SCAN);
+}
+
+uint16_t playSABER_off(void){
+    if (count_saber_off >= COUNT_SABER_OFF) {
+        count_saber_off = 0; 
+    }
+
+    int freq = lightsaber_off_effect[count_saber_off][0];
+    int duration = lightsaber_off_effect[count_saber_off][1];
+
+    setHardwareTone(freq);
+    count_saber_off++;
 
     return (uint16_t)(duration / TEMPO_SCAN);
 }
