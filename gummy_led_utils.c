@@ -12,6 +12,7 @@
 #include "gummy_led_utils.h"
 #include "stdint.h"
 #include "hardware_stm_interruptcontroller.h"
+#include "hardware_stm_adc.h"
 
 /************************************
 * Initializes LED1 on the nucleo Board which is connected to Port B Pin 0
@@ -45,7 +46,7 @@ void init_LED_Blue(void)
 
 void init_LED_Yellow(void)
 {
-    initGpioBxAsOutput(3);
+    initGpioBxAsOutput(12);
 
 }
 
@@ -82,7 +83,7 @@ void set_LED_Blue( void )
 void set_LED_Yellow( void )
 {
     // Call from hardware_stm_gpio
-    setGPIOBx(3);
+    setGPIOBx(12);
 }
 /************************************
 * CLEAR LED1 
@@ -108,20 +109,26 @@ void clear_LED_Blue( void )
 void clear_LED_Yellow( void )
 {
     // Call from hardware_stm_gpio
-    clearGPIOBx(3);
+    clearGPIOBx(12);
 }
 
 
 /* Initialize PF4 as anlog - Phototransistor */
 void init_phototransistor() {
     initGpioFxAsAnalog(4);
+    initADC3();
 }
 
-/* Read Photo transistor value */
+/* Read Phototransistor value */
 uint16_t read_phototransistor() {
-    return 0;
+    return converted_phototransistor(readADC3Channel(14));
 }
 
+/* convert phototransistor to 0-100 scale */
+uint8_t converted_phototransistor(uint16_t photo) {
+    uint8_t scaled_gummy = (photo/4095.0f) * 100.0f;
+    return scaled_gummy;
+}
 
 /*
 INITIALIZES PIN C6 AS INPUT
@@ -155,8 +162,42 @@ void LED_state_set(uint32_t input)
 
 }
 
+// takes converted gummy phototransistor reading then returns corresponding lightsaber color
 uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
+    
+    // array [red, blue, green, yellow
+    if (array[0] < 10 && array[1] > 90) {
+        printf("color is %d\n", 1);
+        return 1; // this is red
+    } else if (array[0] < 60 && array[0] > 40) {
+        printf("color is %d\n", 2);
+        return 2; // this is green
+    } else if (array[0] < 35 && array[1] < 80) {
+        printf("color is %d\n", 4);
+        return 4; // this is white
 
-    return 2;
+    }
+    /* write else if for blue */ 
+
+    else {
+        printf("no gummy\n");
+        return 0; // no color detected - return to idle
+    }
+
+    // red gummy
+    // red: 5  |  blue: 95 | green: 98 | yellow: 89
+
+    // green gummy
+    // red: 58 |  blue: 79 | green: 96 | yellow: 91
+
+    // yellow gummy
+    // red: 6  |  blue: 89 | green: 81 | yellow: 80
+
+    // blue gummy
+    // red:    |  blue:  | green:  |  yellow:  
+
+    // white gummy
+    // red: 14 |  blue: 63 | green: 83 | yellow: 81
+
 }
 
