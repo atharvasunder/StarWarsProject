@@ -355,7 +355,7 @@ void state_machine(event newevent){
             }   
             break;
 
-        case SABER_TURN_OFF:
+        case SABER_TURN_OFF: // for light saber retracting
 
             if (saber_stop_flag == 0){
             
