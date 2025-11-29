@@ -22,6 +22,8 @@ void resetMusicCounter(void);
 uint16_t playMainTheme(void);
 uint16_t playImperialMarch(void);
 uint16_t playLightsaberEffect(void);
+void stopAudio(void);
+
 
 
 #ifdef __cplusplus

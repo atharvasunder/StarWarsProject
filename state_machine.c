@@ -154,6 +154,8 @@ void state_machine(event newevent){
                 reset_all_leds(leds);
 
                 //turn off chill intro music
+                stopAudio();
+                resetMusicCounter();
 
                 enqueue_event(START_TIMEOUT, 3, 500);
             }
@@ -208,7 +210,6 @@ void state_machine(event newevent){
                 insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
             }
             
-
             else if (newevent.type == TIMEOUT) {
 
                 if (newevent.param1 == 3) { 
@@ -284,6 +285,7 @@ void state_machine(event newevent){
                 enqueue_event(START_TIMEOUT, 1, 5);
 
                 // start playing sound
+                // uint16_t duration_to_wait = playLightsaberEffect();
 
                 // start speaker timeout request
 
