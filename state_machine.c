@@ -41,7 +41,8 @@ uint16_t gummy_color;
 
 // for turning on saber blade
 uint8_t  saber_start_flag = 0; //
-uint16_t led_on_count     = 0;  // for counting how many leds have turned on
+uint16_t led_on_count = 0;  // for counting how many leds have turned on
+uint16_t led_off_count = 144;
 uint8_t  saber_init_flag  = 0;  // whether initialized or not
 
 // initialize strip leds array
@@ -209,6 +210,14 @@ void state_machine(event newevent){
             if (newevent.type == START_TIMEOUT) {
                 insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
             }
+
+            else if (newevent.type == COLOUR_DETECTED){
+                current_state.type = SABER_READY;
+            }
+
+            else if (newevent.type == NO_COLOUR_DETECTED){
+                current_state.type = IDLE;
+            }
             
             else if (newevent.type == TIMEOUT) {
 
@@ -258,22 +267,24 @@ void state_machine(event newevent){
 
                         gummy_color = gummy_to_saber(gummy_responses, 4);
 
-
-
-                    if (gummy_color != 0) {
-                        // gummy detected
-                        enqueue_event(COLOUR_DETECTED, gummy_color, 0);
-                        current_state.type = SABER_READY;
-                    } else {
-                        // no color detected
-                        current_state.type = IDLE;
+                        if (gummy_color != 0) {
+                            // gummy detected
+                            enqueue_event(COLOUR_DETECTED, gummy_color, 0);
+                        }
+                        
+                        else {
+                            // no color detected
+                            enqueue_event(NO_COLOUR_DETECTED, gummy_color, 0);
+                        }
                     }
+
                 }
+
             }
-        }
+
         break;
 
-        case SABER_READY:
+        case SABER_TURN_ON:
 
             if (saber_start_flag == 0){
                 
@@ -296,8 +307,8 @@ void state_machine(event newevent){
 
             }
 
-            if (newevent.type == BUTTON_PRESSED){
-                current_state.type = IN_GAME_WAITING;
+            if (newevent.type == SABER_ON){
+                current_state.type = SABER_READY;
 
                 saber_start_flag = 0;
             }
@@ -334,25 +345,32 @@ void state_machine(event newevent){
 
                     else{
                         stopAudio(); //turn off lightsaber audio after
-                        resetMusicCounter(); 
+                        resetMusicCounter();
+                        saber_start_flag = 0;
+                        enqueue_event(SABER_ON, 0, 0);  // params do not matter here
                     }
 
                 }  
             }   
             break;
 
+        case SABER_READY:  
+            if (newevent.type == BUTTON_PRESSED){
+                current_state.type = IN_GAME_WAITING;
+            }
+
+            // start playing imperial march here
+            
+            break;
+
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IDLE;
-                // debugprintHelloWorld();
-                clear_LED_Red();
-                clear_LED_Yellow();
 
                 saber_start_flag = 0;
                 led_on_count = 0;
+                led_off_count = 144;
                 idle_start_flag = 0;
-
-            // // start reading accelerometer
 
             }
             break;
