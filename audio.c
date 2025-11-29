@@ -79,8 +79,8 @@ static int main_theme[][2] = {
 
 // LED Cycling bip sound
 static int LED_scan[][2] = {
-    {2000, 50}, // High pitch tone
-    {0, 10}     // Tiny silence buffer 
+    {2000, 190}, // High pitch tone
+         // Tiny silence buffer 
 };
 // --- 2. Configuration (Counts & Tempos) ---
 
@@ -191,7 +191,7 @@ uint16_t playLED_Scan(void){
     int duration = LED_scan[count_scan][1];
 
     setHardwareTone(freq);
-    count_saber++;
+    // count_scan++;
 
     return (uint16_t)(duration / TEMPO_SCAN);
 }

@@ -22,8 +22,11 @@ void resetMusicCounter(void);
 uint16_t playMainTheme(void);
 uint16_t playImperialMarch(void);
 uint16_t playLightsaberEffect(void);
+uint16_t playSABER_off(void);
+uint16_t playLED_Scan(void);
 void stopAudio(void);
 void init_speaker(void);
+
 
 
 

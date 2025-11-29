@@ -198,6 +198,9 @@ void state_machine(event newevent){
                 set_LED_Red();
 
                 // play speaker sound (beep indicating one led is on)
+                resetMusicCounter();
+                uint16_t duration_to_wait = playLED_Scan();
+                enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                 // keep LED on for 0.5s
                 enqueue_event(START_TIMEOUT, 3, 1000);
@@ -231,6 +234,10 @@ void state_machine(event newevent){
                         set_LED_Blue();
                         enqueue_event(START_TIMEOUT, 3, 1000);
 
+                        uint16_t duration_to_wait = playLED_Scan();
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
+
                         saber_init_flag = 2;
                     }
 
@@ -242,6 +249,10 @@ void state_machine(event newevent){
                         set_LED_Green();
                         enqueue_event(START_TIMEOUT, 3, 1000);
 
+
+                        uint16_t duration_to_wait = playLED_Scan();
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
                         saber_init_flag = 3;
                     }
 
@@ -251,6 +262,9 @@ void state_machine(event newevent){
 
                         set_LED_Yellow();
                         enqueue_event(START_TIMEOUT, 3, 1000);
+
+                        uint16_t duration_to_wait = playLED_Scan();
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                         saber_init_flag = 4;
                     }
@@ -279,6 +293,10 @@ void state_machine(event newevent){
                         }
                     }
 
+                }
+
+                if (newevent.param1 == 2){
+                    stopAudio();
                 }
 
             }
@@ -367,7 +385,7 @@ void state_machine(event newevent){
 
                 // start playing sound
                 resetMusicCounter(); 
-                uint16_t duration_to_wait = playLightsaberEffect();
+                uint16_t duration_to_wait = playSABER_off();
 
                 // start speaker timeout request
                 enqueue_event(START_TIMEOUT, 2, duration_to_wait);
@@ -407,7 +425,7 @@ void state_machine(event newevent){
 
                     if (led_on_count >= 1){
                         // play speaker 
-                        uint16_t duration_to_wait = playLightsaberEffect();
+                        uint16_t duration_to_wait = playSABER_off();
 
                         // start speaker timeout request
                         enqueue_event(START_TIMEOUT, 2, duration_to_wait);
@@ -435,7 +453,7 @@ void state_machine(event newevent){
 
         case IN_GAME_WAITING:  
             if (newevent.type == BUTTON_PRESSED){
-                current_state.type = IDLE;
+                current_state.type = SABER_TURN_OFF;
 
                 saber_start_flag = 0;
                 led_on_count = 0;
