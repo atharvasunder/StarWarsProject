@@ -27,6 +27,7 @@ typedef enum
     COLOUR_DETECTED,
     NO_COLOUR_DETECTED,
     SABER_ON,
+    SABER_OFF,
     START_TIMEOUT,
     TIMEOUT,
     NO_EVENT

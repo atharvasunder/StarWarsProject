@@ -40,7 +40,8 @@ uint16_t gummy_responses[4];
 uint16_t gummy_color;
 
 // for turning on saber blade
-uint8_t  saber_start_flag = 0; //
+uint8_t  saber_start_flag = 0; // for initializing saber turning on
+uint8_t saber_stop_flag = 0;    // for initializing saber turning off
 uint16_t led_on_count = 0;  // for counting how many leds have turned on
 uint16_t led_off_count = 144;
 uint8_t  saber_init_flag  = 0;  // whether initialized or not
@@ -354,13 +355,82 @@ void state_machine(event newevent){
             }   
             break;
 
+        case SABER_TURN_OFF:
+
+            if (saber_stop_flag == 0){
+            
+                // turn on all leds in strip, decreasae led_count variable by 1
+                set_n_leds(&strip_color, leds, led_off_count);
+                
+                // start led_strip timeout request
+                enqueue_event(START_TIMEOUT, 1, 5);
+
+                // start playing sound
+                resetMusicCounter(); 
+                uint16_t duration_to_wait = playLightsaberEffect();
+
+                // start speaker timeout request
+                enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
+                saber_stop_flag = 1;
+                led_on_count --;
+
+            }
+
+            if (newevent.type == SABER_OFF){
+                current_state.type = IDLE;
+
+                saber_stop_flag = 0;
+            }
+
+            else if (newevent.type == START_TIMEOUT){
+                insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
+            }
+
+            else if (newevent.type == TIMEOUT){
+                if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
+                    // if number of leds on >=1, turn on the required number of leds
+                    // else, dont do anything
+                    if (led_on_count >= 1){
+                        led_on_count--;
+                        set_n_leds(&strip_color, leds, led_on_count);
+                        // start a new timeout - keep blade on
+                        enqueue_event(START_TIMEOUT, 1, 5);
+                    }
+
+                }
+
+                else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                
+                    // enqueue_event(START_TIMEOUT, 2, 1000);
+
+                    if (led_on_count >= 1){
+                        // play speaker 
+                        uint16_t duration_to_wait = playLightsaberEffect();
+
+                        // start speaker timeout request
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    }
+
+                    else{
+                        stopAudio(); //turn off lightsaber audio after
+                        resetMusicCounter();
+                        saber_stop_flag = 0;
+                        enqueue_event(SABER_OFF, 0, 0);  // params do not matter here
+                    }
+
+                }  
+            }   
+            break;
+
         case SABER_READY:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IN_GAME_WAITING;
             }
 
             // start playing imperial march here
-            
+
             break;
 
         case IN_GAME_WAITING:  

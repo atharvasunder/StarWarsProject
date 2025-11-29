@@ -29,6 +29,7 @@ typedef enum
     IDLE,
     SABER_INITIALIZE,
     SABER_TURN_ON,
+    SABER_TURN_OFF,
     SABER_READY,
     IN_GAME_WAITING
     // IN_GAME_PARRY,
