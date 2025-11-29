@@ -46,7 +46,7 @@ void init_LED_Blue(void)
 
 void init_LED_Yellow(void)
 {
-    initGpioBxAsOutput(3);
+    initGpioBxAsOutput(12);
 
 }
 
@@ -83,7 +83,7 @@ void set_LED_Blue( void )
 void set_LED_Yellow( void )
 {
     // Call from hardware_stm_gpio
-    setGPIOBx(3);
+    setGPIOBx(12);
 }
 /************************************
 * CLEAR LED1 
@@ -109,7 +109,7 @@ void clear_LED_Blue( void )
 void clear_LED_Yellow( void )
 {
     // Call from hardware_stm_gpio
-    clearGPIOBx(3);
+    clearGPIOBx(12);
 }
 
 
