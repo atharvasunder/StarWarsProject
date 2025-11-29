@@ -79,7 +79,7 @@ static int main_theme[][2] = {
 
 // LED Cycling bip sound
 static int LED_scan[][2] = {
-    {2000, 190}, // High pitch tone
+    {2000, 190} // High pitch tone
          // Tiny silence buffer 
 };
 // --- 2. Configuration (Counts & Tempos) ---

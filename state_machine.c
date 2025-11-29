@@ -43,7 +43,7 @@ uint16_t gummy_color;
 uint8_t  saber_start_flag = 0; // for initializing saber turning on
 uint8_t saber_stop_flag = 0;    // for initializing saber turning off
 uint16_t led_on_count = 0;  // for counting how many leds have turned on
-uint16_t led_off_count = 144;
+uint16_t led_off_count = NUM_OF_LEDS;
 uint8_t  saber_init_flag  = 0;  // whether initialized or not
 
 // initialize strip leds array
@@ -82,8 +82,8 @@ void init_state_machine(void) {
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
-        initGpioBxAsAF1(3); //PB3 as AF1 connects to CH2
-        initTimer2_CH2_PWM(); // timer2 as PWM    
+        init_speaker();
+   
 
 
     /* HILT */
@@ -123,6 +123,8 @@ void state_machine(event newevent){
             
             if (idle_start_flag == 0){
 
+                saber_init_flag = 0;    // for led cycling to happen everytime from idle state
+
                 strip_color.r = 0;
                 strip_color.g = 0;
                 strip_color.b = 255;
@@ -149,6 +151,7 @@ void state_machine(event newevent){
             }
 
             if (newevent.type == BUTTON_PRESSED){
+                
 
                 current_state.type = SABER_INITIALIZE;
 
@@ -216,7 +219,7 @@ void state_machine(event newevent){
             }
 
             else if (newevent.type == COLOUR_DETECTED){
-                current_state.type = SABER_READY;
+                current_state.type = SABER_TURN_ON;
             }
 
             else if (newevent.type == NO_COLOUR_DETECTED){
@@ -249,7 +252,6 @@ void state_machine(event newevent){
                         set_LED_Green();
                         enqueue_event(START_TIMEOUT, 3, 1000);
 
-
                         uint16_t duration_to_wait = playLED_Scan();
                         enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
@@ -273,7 +275,7 @@ void state_machine(event newevent){
                         gummy_responses[3] = read_phototransistor();
                         clear_LED_Yellow();
 
-                        saber_init_flag = 0;
+                        saber_init_flag = 5;    // ensures this condition does not get visited again
                         led_on_count = 0;
 
                         for (uint8_t i = 0; i < 4; i++) {
@@ -301,7 +303,7 @@ void state_machine(event newevent){
 
             }
 
-        break;
+            break;
 
         case SABER_TURN_ON:
 
@@ -365,7 +367,7 @@ void state_machine(event newevent){
                     else{
                         stopAudio(); //turn off lightsaber audio after
                         resetMusicCounter();
-                        saber_start_flag = 0;
+                        
                         enqueue_event(SABER_ON, 0, 0);  // params do not matter here
                     }
 
@@ -391,7 +393,7 @@ void state_machine(event newevent){
                 enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                 saber_stop_flag = 1;
-                led_on_count --;
+                led_off_count --;
 
             }
 
@@ -410,9 +412,9 @@ void state_machine(event newevent){
                     
                     // if number of leds on >=1, turn on the required number of leds
                     // else, dont do anything
-                    if (led_on_count >= 1){
-                        led_on_count--;
-                        set_n_leds(&strip_color, leds, led_on_count);
+                    if (led_off_count >= 1){
+                        led_off_count--;
+                        set_n_leds(&strip_color, leds, led_off_count);
                         // start a new timeout - keep blade on
                         enqueue_event(START_TIMEOUT, 1, 5);
                     }
@@ -423,7 +425,7 @@ void state_machine(event newevent){
                 
                     // enqueue_event(START_TIMEOUT, 2, 1000);
 
-                    if (led_on_count >= 1){
+                    if (led_off_count >= 1){
                         // play speaker 
                         uint16_t duration_to_wait = playSABER_off();
 
@@ -434,7 +436,6 @@ void state_machine(event newevent){
                     else{
                         stopAudio(); //turn off lightsaber audio after
                         resetMusicCounter();
-                        saber_stop_flag = 0;
                         enqueue_event(SABER_OFF, 0, 0);  // params do not matter here
                     }
 
