@@ -75,7 +75,7 @@ static int main_theme[][2] = {
 // Tempo Dividers (Lower = Slower, Higher = Faster)
 #define TEMPO_MAIN      0.5  // Slow, cinematic
 #define TEMPO_IMPERIAL  1.0  // Standard march speed
-#define TEMPO_SABER     0.8  // Fast enough to make "hum" sound continuous
+#define TEMPO_SABER     0.7  // Fast enough to make "hum" sound continuous
 
 // State Counters (Separate for each song)
 static int count_main = 0;
@@ -102,7 +102,7 @@ static void setHardwareTone(uint32_t freq) {
 // Call this when entering a new State to ensure songs start at the beginning
 void resetMusicCounter(void) {
     count_main = 0;
-    count_imperial = 0;
+    count_imperial = 0;// count for imperial
     count_saber = 0;
 }
 
