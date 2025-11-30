@@ -69,6 +69,7 @@ void encode_byte(uint8_t byte, uint16_t out[8]);
 void convert_rgb_to_neopixel(rgb_color *in, neopixel_led *out);
 void set_n_leds(rgb_color* strip_color, neopixel_led* leds, uint16_t n);
 void delay_long(void);
+void init_led_strip(void);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus

@@ -95,6 +95,7 @@
 /*Function definitions---------------------------------------------------------*/
 void initGpioBxAsInput(uint16_t );
 void initGpioBxAsOutput(uint16_t );
+void initGpioBxAsOutput_PD(uint16_t);
 void toggleGPIOBx( uint16_t );
 void setGPIOBx( uint16_t );
 void clearGPIOBx( uint16_t );

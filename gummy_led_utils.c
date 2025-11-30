@@ -112,6 +112,19 @@ void clear_LED_Yellow( void )
     clearGPIOBx(12);
 }
 
+/* Vibration Motor Stuff */
+void init_vibration_motor( void ) {
+    initGpioBxAsOutput_PD(11);
+}
+
+void set_vibration_motor (void) {
+    setGPIOBx(11);
+}
+
+void clear_vibration_motor (void) {
+    clearGPIOBx(11);
+}
+
 
 /* Initialize PF4 as anlog - Phototransistor */
 void init_phototransistor() {
@@ -129,6 +142,7 @@ uint8_t converted_phototransistor(uint16_t photo) {
     uint8_t scaled_gummy = (photo/4095.0f) * 100.0f;
     return scaled_gummy;
 }
+
 
 /*
 INITIALIZES PIN C6 AS INPUT

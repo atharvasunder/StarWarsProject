@@ -12,6 +12,8 @@
 #include "debug_mort.h"
 #include "stm32f4xx_rcc_mort.h"
 #include "hardware_stm_dma_controller.h"
+#include "hardware_stm_gpio.h"
+#include "hardware_stm_timer3.h"
 #include <cstdint>  /*C++ version of the <stdint.h> C header*/
 
 /*------------------------------variable definitions-----------------------------*/
@@ -155,3 +157,9 @@ void delay_long(void){
             j = j + 1;   // tiny delay
     }
 }
+
+void init_led_strip(void){
+    initGpioBxAsAF2(5); // PB5 as alternative function 2 for PWM
+    initTimer3PWM(8, 13);   // 8: PSC, 13: ARR
+}
+
