@@ -493,7 +493,7 @@ void initGpioFxAsAF4(uint8_t pin)
     PORTF_MODER &= ~(3UL << (pin * 2U));
     PORTF_MODER |=  (2UL << (pin * 2U));
 
-    PORTF_OTYPER |=  (1UL << pin);
+    PORTF_OTYPER  |=  (1UL << pin);
     PORTF_OSPEEDR &= ~(3UL << (pin * 2U));
     PORTF_OSPEEDR |=  (2UL << (pin * 2U));
 
@@ -510,19 +510,20 @@ void initGpioFxAsAF4(uint8_t pin)
         PORTF_AFRH |=  (4UL << shift);
     }
 }
+
 void initGpioFxAsAF3(uint8_t pin)
 {
     // 1. Enable Clock for GPIOF
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
     
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
+    // RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
 
     // 2. Set Mode to Alternate Function (10)
     PORTF_MODER &= ~(3UL << (pin * 2U));
     PORTF_MODER |=  (2UL << (pin * 2U));
 
     // 3. Set Output Type to Push-Pull (0) .
-    PORTF_OTYPER &= ~(1UL << pin); 
+    PORTF_OTYPER |= (1UL << pin); 
 
     // 4. Set Speed to Fast/High (10)
     PORTF_OSPEEDR &= ~(3UL << (pin * 2U));
@@ -530,6 +531,7 @@ void initGpioFxAsAF3(uint8_t pin)
 
     // 5. Set Pull-Up/Down to None (00)
     PORTF_PUPDR &= ~(3UL << (pin * 2U));
+    PORTF_PUPDR |=  (1UL << (pin * 2U));
 
     // 6. Set Alternate Function to AF3 (0011 binary = 3 decimal)
     if (pin < 8) {
