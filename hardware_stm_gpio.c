@@ -54,6 +54,22 @@ void initGpioBxAsOutput(uint16_t x){
     // setGPIOBx(x);  // Set PBx
 }
 
+void initGpioBxAsOutput_PD(uint16_t x) {
+        /* Configure PB0 as output */
+    PORTB_MODER = PORTB_MODER & ~(3UL << (x * 2)); // Clear bits
+    PORTB_MODER = PORTB_MODER |  (1UL << (x * 2)); // 01 = General purpose output
+
+    /* Output type push-pull */
+    PORTB_OTYPER = PORTB_OTYPER & ~(1UL << x);
+
+    /* pull down */
+    PORTB_PUPDR &= ~(3UL << (x * 2));
+    PORTB_PUPDR |=  (2UL << (x * 2));
+
+    /* Set PB0 high initially */
+    // setGPIOBx(x);  // Set PBx
+}
+
 void initGpioBxAsInput(uint16_t x)
 {
     /* GPIOB Peripheral clock enable */
