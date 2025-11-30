@@ -30,6 +30,12 @@ typedef enum
     SABER_OFF,
     START_TIMEOUT,
     TIMEOUT,
+    GO_TO_PARRYING,
+    GO_TO_WAITING,
+    END_GAME,
+    CORRECT_SWING_DIRECTION,
+    WRONG_SWING_DIRECTION,
+    GAME_OVER,
     NO_EVENT
 } event_type;
 

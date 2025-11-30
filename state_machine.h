@@ -31,9 +31,9 @@ typedef enum
     SABER_TURN_ON,
     SABER_TURN_OFF,
     SABER_READY,
-    IN_GAME_WAITING
-    // IN_GAME_PARRY,
-    // END_OF_GAME
+    IN_GAME_WAITING,
+    IN_GAME_PARRYING,
+    END_OF_GAME
 } state_type;
 
 
@@ -47,6 +47,7 @@ void init_state_machine(void);
 void state_machine(event currentevent);
 void get_gummy_colour(float led_response[3]);
 void get_strip_colour(uint16_t gummy_color);
+void reset_game_time(void);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus
