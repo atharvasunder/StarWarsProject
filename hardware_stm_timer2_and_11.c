@@ -2,7 +2,7 @@
 #include "stdint.h"
 #include "stm32f4xx_rcc_mort.h"
 #include "hardware_stm_gpio.h"
-#include "hardware_stm_timer2.h"
+#include "hardware_stm_timer2_and_11.h"
 
 
 void initTimer2_CH2_PWM( void )
