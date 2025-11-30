@@ -583,8 +583,11 @@ void state_machine(event newevent){
                         enqueue_event(GO_TO_PARRYING, 0, 0);
 
                         // turn on vibration motor, start a vibration motor timeout
+                        set_vibration_motor();
+                        enqueue_event(START_TIMEOUT, 6, 1000);
 
                         // DON'T PUT A SWING TIMEOUT IN THE LAST CARD AS GAME WILL END AFTER THAT
+
                     }
 
                     else{
@@ -597,6 +600,7 @@ void state_machine(event newevent){
                         // printf("Going to parrying\n");
 
                         // turn on vibration motor, start a vibration motor timeout
+                        set_vibration_motor();
                         enqueue_event(START_TIMEOUT, 6, 1000);
                     }
 
@@ -703,6 +707,7 @@ void state_machine(event newevent){
                 else if (newevent.param1 ==  6){    // vibration motor timeout
 
                     // turn off vibration motor
+                    clear_vibration_motor();
                     
                     // check imu for swing direction? @Gun implement buffer stuff
                     // not sure if it goes in here tho, maybe we keep populating the buffer
@@ -735,6 +740,7 @@ void state_machine(event newevent){
                     // start speaker rocky balboa song
                     ;
                     // start vibration motor
+                    set_vibration_motor();
 
                     // start LED strip blinking (toggle led strip)
 
@@ -787,6 +793,7 @@ void state_machine(event newevent){
                 else if (newevent.param1 ==  10){   // overall game over timeout
                     
                     // turn off vibration motor
+                    clear_vibration_motor();
 
                     // turn off speaker
                     
