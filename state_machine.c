@@ -18,7 +18,7 @@
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_timer3.h"
 #include "global_time.h"
-#include "hardware_stm_timer2.h"
+#include "hardware_stm_timer2_and_11.h"
 #include "audio.h"
 #include <stdbool.h>
 
@@ -738,7 +738,12 @@ void state_machine(event newevent){
                 // based on whether player won or lost.
                 if (score > 3){
                     // start speaker rocky balboa song
-                    ;
+                    resetMusicCounter();
+                    uint16_t duration_to_wait = playVictory();
+
+                    // start timeout for speaker
+                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
                     // start vibration motor
                     set_vibration_motor();
 
@@ -748,7 +753,8 @@ void state_machine(event newevent){
 
                 else{
                     // start playing fail song
-                    ;
+                    resetMusicCounter();
+                    uint16_t duration_to_wait = playGameOVer();
                     // turn led strip red, will be toggled too
 
                 }
@@ -783,10 +789,10 @@ void state_machine(event newevent){
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
                     // play speaker (send 1 set of bits before the next timeout)
-                    // uint16_t duration_to_wait = playImperialMarch();
+                    uint16_t duration_to_wait = playMainTheme();
 
                     // start timeout for speaker
-                    // enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                 }
 
@@ -796,7 +802,7 @@ void state_machine(event newevent){
                     clear_vibration_motor();
 
                     // turn off speaker
-                    
+                    stopAudio();
 
                     // start timeout for speaker
                     enqueue_event(GAME_OVER, 0, 0);

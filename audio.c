@@ -1,5 +1,5 @@
 #include "audio.h"
-#include "hardware_stm_timer2.h"
+#include "hardware_stm_timer2_and_11.h"
 #include "hardware_stm_gpio.h" 
 
 // --- 1. Sound Data Arrays ---
@@ -122,6 +122,38 @@ static int victory_song[][2] = {
     {0, 500}
 };
 
+static int mario_game_over[][2] = {
+    // --- PART 1: The "Death" Riff (Fast) ---
+    // Fast descending arpeggio (C -> G -> E -> A -> B -> A -> G# -> A# -> G# -> G)
+    {523, 120}, // C5
+    {392, 120}, // G4
+    {330, 120}, // E4
+    
+    {440, 100}, // A4
+    {494, 100}, // B4
+    {440, 100}, // A4
+    
+    {415, 100}, // G#4
+    {466, 100}, // A#4
+    {415, 100}, // G#4
+    
+    {392, 100}, // G4
+    {330, 100}, // E4 (Drop down)
+
+    // --- PART 2: The Main "Game Over" Theme ---
+    // Slow, sad descending notes
+    {466, 450}, // Bb4 (Da...)
+    {440, 450}, // A4  (Da...)
+    {415, 450}, // G#4 (Da...)
+    
+    // The Final "Dum-Dum"
+    {392, 350}, // G4
+    {262, 350}, // C4 (Low resolution)
+    {330, 800}, // E4 (Final Chord hint)
+
+    // --- FINISH ---
+    {0, 500}
+};
 // LED Cycling bip sound
 static int LED_scan[][2] = {
     {2000, 190} // High pitch tone
@@ -136,14 +168,16 @@ static int LED_scan[][2] = {
 #define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
 #define COUNT_SABER_OFF (sizeof(lightsaber_off_effect) / sizeof(lightsaber_off_effect[0]))
 #define COUNT_ROCKY     (sizeof(victory_song) / sizeof(victory_song[0]))
+#define COUNT_GAMEOVER  (sizeof(mario_game_over) / sizeof(mario_game_over[0]))
 
 // Tempo Dividers (Lower = Slower, Higher = Faster)
-#define TEMPO_MAIN      1  // Slow, cinematic
-#define TEMPO_IMPERIAL  1.0  // Standard march speed
-#define TEMPO_SABER     1  // Fast enough to make "hum" sound continuous
-#define TEMPO_SCAN      1
-#define TEMPO_SABER_OFF 1
-#define TEMPO_VICTORY     0.25
+#define TEMPO_MAIN          1  // Slow, cinematic
+#define TEMPO_IMPERIAL      1.0  // Standard march speed
+#define TEMPO_SABER         1  // Fast enough to make "hum" sound continuous
+#define TEMPO_SCAN          1
+#define TEMPO_SABER_OFF     1
+#define TEMPO_VICTORY       0.25
+#define TEMPO_GAME_OVER     0.4
 
 // State Counters (Separate for each song)
 static int count_main = 0;
@@ -152,6 +186,8 @@ static int count_saber = 0;
 static int count_scan = 0;
 static int count_saber_off = 0;
 static int count_rocky = 0;
+static int count_game_over = 0;
+
 
 
 // --- 3. Hardware Helper (Private) ---
@@ -169,16 +205,16 @@ static void setHardwareTone(uint32_t freq) {
     }
 }
 static void setHardwareTone_TIM11(uint32_t freq) {
-    uint32_t * arr_reg = (uint32_t*)TIM11_AUTORELOAD_REGISTER;
-    uint32_t * ccr_reg = (uint32_t*)TIM11_COMPARE_2_REGISTER;
+    uint32_t * arr_reg_2 = (uint32_t*)TIM11_AUTORELOAD_REGISTER;
+    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_COMPARE_2_REGISTER;
     
     if (freq == 0) {
-        *ccr_reg = 0; 
+        *ccr_reg_2 = 0; 
     } else {
         // Assumes 1MHz Timer Clock. Adjust 1000000 if Prescaler changes.
         uint32_t new_arr = (1000000 / freq) - 1; 
-        *arr_reg = new_arr;        
-        *ccr_reg = new_arr / 8; // 4 for high volume, 8 for lower volume (hopefully)
+        *arr_reg_2 = new_arr;        
+        *ccr_reg_2 = new_arr / 8; // 4 for high volume, 8 for lower volume (hopefully)
     }
 }
 
@@ -192,13 +228,19 @@ void resetMusicCounter(void) {
     count_scan = 0;
     count_saber_off = 0;
     count_rocky = 0;
+    count_game_over =0;
 }
 
 // Call this to silence the speaker immediately
 void stopAudio(void) {
+
+    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_COMPARE_2_REGISTER;
     uint32_t * ccr_reg = (uint32_t*)TIM2_COMPARE_2_REGISTER;
     *ccr_reg = 0; 
+    *ccr_reg_2 = 0;
 }
+
+
 
 // --- Playback Functions (Return duration in ms) ---
 
@@ -284,6 +326,20 @@ uint16_t playVictory(void) {
     count_rocky++;
 
     return (uint16_t)(duration / TEMPO_VICTORY);
+}
+
+uint16_t playGameOVer(void) {
+    if (count_game_over >= COUNT_GAMEOVER) {
+        count_game_over = 0; 
+    }
+
+    int freq = mario_game_over[count_game_over][0];
+    int duration = mario_game_over[count_game_over][1];
+
+    setHardwareTone_TIM11(freq);
+    count_game_over++;
+
+    return (uint16_t)(duration / TEMPO_GAME_OVER);
 }
 
 void init_speaker1(void){

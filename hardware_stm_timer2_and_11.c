@@ -5,6 +5,7 @@
 #include "hardware_stm_timer2_and_11.h"
 
 
+
 void initTimer2_CH2_PWM( void )
 {
     /* 2. TIM2 Peripheral clock enable (Timer is on APB1 bus) */
