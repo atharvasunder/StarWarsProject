@@ -280,7 +280,7 @@ uint16_t playLightsaberEffect(void) {
     int freq = lightsaber_effect[count_saber][0];
     int duration = lightsaber_effect[count_saber][1];
 
-    setHardwareTone(freq);
+    setHardwareTone_TIM11(freq);
     count_saber++;
 
     return (uint16_t)(duration / TEMPO_SABER);
@@ -294,7 +294,7 @@ uint16_t playLED_Scan(void){
     int freq = LED_scan[count_scan][0];
     int duration = LED_scan[count_scan][1];
 
-    setHardwareTone(freq);
+    setHardwareTone_TIM11(freq);
     // count_scan++;
 
     return (uint16_t)(duration / TEMPO_SCAN);
@@ -308,7 +308,7 @@ uint16_t playSABER_off(void){
     int freq = lightsaber_off_effect[count_saber_off][0];
     int duration = lightsaber_off_effect[count_saber_off][1];
 
-    setHardwareTone(freq);
+    setHardwareTone_TIM11(freq);
     count_saber_off++;
 
     return (uint16_t)(duration / TEMPO_SCAN);

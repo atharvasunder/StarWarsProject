@@ -755,6 +755,8 @@ void state_machine(event newevent){
                     // start playing fail song
                     resetMusicCounter();
                     uint16_t duration_to_wait = playGameOVer();
+                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+
                     // turn led strip red, will be toggled too
 
                 }
@@ -788,11 +790,18 @@ void state_machine(event newevent){
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
-                    // play speaker (send 1 set of bits before the next timeout)
-                    uint16_t duration_to_wait = playMainTheme();
-
-                    // start timeout for speaker
-                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    if (score > 3){
+                        // play speaker (send 1 set of bits before the next timeout)
+                        uint16_t duration_to_wait = playVictory();
+                        // start timeout for speaker
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    }
+                    
+                    else{
+                        uint16_t duration_to_wait = playGameOVer();
+                        // start timeout for speaker
+                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    }
 
                 }
 
