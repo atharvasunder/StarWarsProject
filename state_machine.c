@@ -99,12 +99,14 @@ void init_state_machine(void) {
         // initialize pins for button (including the external interrupt)
         init_gummy_Input();
         
-
-        // initialize pins, ADCs for accelerometer/IMU
+        // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
         init_speaker();
-   
+
+        // initialize vibration motor 
+        init_vibration_motor();
+
     /* HILT */
 
     /* BLADE */
