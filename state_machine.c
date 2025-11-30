@@ -102,7 +102,7 @@ void init_state_machine(void) {
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
-        init_speaker();
+        init_speaker1();
 
         // initialize vibration motor 
         init_vibration_motor();
