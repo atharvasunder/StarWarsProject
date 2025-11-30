@@ -24,8 +24,11 @@ uint16_t playImperialMarch(void);
 uint16_t playLightsaberEffect(void);
 uint16_t playSABER_off(void);
 uint16_t playLED_Scan(void);
+uint16_t playVictory(void);
 void stopAudio(void);
-void init_speaker(void);
+void init_speaker1(void);
+void init_speaker2(void);
+
 
 
 

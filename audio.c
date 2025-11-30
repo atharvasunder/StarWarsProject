@@ -78,6 +78,50 @@ static int main_theme[][2] = {
     {698, 250}, {659, 250}, {698, 250}, {587, 2000} 
 };
 
+// D. Victory Song (rocky theme)
+// Format: {Frequency (Hz), Duration (ms)}
+static int victory_song[][2] = {
+    
+    {392, 300}, // G4 (Low)
+
+    // Main Theme Phrase 1
+    {523, 1000},// C5 (Long)
+    {392, 300}, // G4
+    {349, 150}, // F4 (Fast)
+    {330, 150}, // E4 (Fast)
+    {294, 150}, // D4 (Fast)
+    {523, 1000},// C5 (High again)
+
+    {392, 300}, // G4
+    {349, 150}, // F4
+    {330, 150}, // E4
+    {349, 150}, // F4
+    {294, 1200},// D4 (Resolution, Low)
+
+    // --- SECTION 2: THE REPEAT (Higher Octave / Variation) ---
+    {392, 300}, // G4 (Pickup)
+
+    {523, 1000},// C5
+    {392, 300}, // G4
+    {349, 150}, // F4
+    {330, 150}, // E4
+    {349, 150}, // F4
+    {294, 1000},// D4 
+    
+    // The "Force" Swell
+    {392, 300}, // G4
+    {392, 150}, // G4 (Quick repeat)
+    {523, 300}, // C5
+    {587, 300}, // D5
+    {659, 300}, // E5
+    {523, 300}, // C5
+    {392, 300}, // G4
+    {440, 1200},// A4 (The grand chord change)
+
+    // --- FINISH ---
+    {0, 500}
+};
+
 // LED Cycling bip sound
 static int LED_scan[][2] = {
     {2000, 190} // High pitch tone
@@ -91,6 +135,7 @@ static int LED_scan[][2] = {
 #define COUNT_SABER     (sizeof(lightsaber_effect) / sizeof(lightsaber_effect[0]))
 #define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
 #define COUNT_SABER_OFF (sizeof(lightsaber_off_effect) / sizeof(lightsaber_off_effect[0]))
+#define COUNT_ROCKY     (sizeof(victory_song) / sizeof(victory_song[0]))
 
 // Tempo Dividers (Lower = Slower, Higher = Faster)
 #define TEMPO_MAIN      1  // Slow, cinematic
@@ -98,6 +143,7 @@ static int LED_scan[][2] = {
 #define TEMPO_SABER     1  // Fast enough to make "hum" sound continuous
 #define TEMPO_SCAN      1
 #define TEMPO_SABER_OFF 1
+#define TEMPO_VICTORY     0.25
 
 // State Counters (Separate for each song)
 static int count_main = 0;
@@ -105,12 +151,26 @@ static int count_imperial = 0;
 static int count_saber = 0;
 static int count_scan = 0;
 static int count_saber_off = 0;
+static int count_rocky = 0;
 
 
 // --- 3. Hardware Helper (Private) ---
 static void setHardwareTone(uint32_t freq) {
     uint32_t * arr_reg = (uint32_t*)TIM2_AUTORELOAD_REGISTER;
     uint32_t * ccr_reg = (uint32_t*)TIM2_COMPARE_2_REGISTER;
+    
+    if (freq == 0) {
+        *ccr_reg = 0; 
+    } else {
+        // Assumes 1MHz Timer Clock. Adjust 1000000 if Prescaler changes.
+        uint32_t new_arr = (1000000 / freq) - 1; 
+        *arr_reg = new_arr;        
+        *ccr_reg = new_arr / 8; // 4 for high volume, 8 for lower volume (hopefully)
+    }
+}
+static void setHardwareTone_TIM11(uint32_t freq) {
+    uint32_t * arr_reg = (uint32_t*)TIM11_AUTORELOAD_REGISTER;
+    uint32_t * ccr_reg = (uint32_t*)TIM11_COMPARE_2_REGISTER;
     
     if (freq == 0) {
         *ccr_reg = 0; 
@@ -131,6 +191,7 @@ void resetMusicCounter(void) {
     count_saber = 0;
     count_scan = 0;
     count_saber_off = 0;
+    count_rocky = 0;
 }
 
 // Call this to silence the speaker immediately
@@ -211,7 +272,26 @@ uint16_t playSABER_off(void){
     return (uint16_t)(duration / TEMPO_SCAN);
 }
 
-void init_speaker(void){
+uint16_t playVictory(void) {
+    if (count_rocky >= COUNT_ROCKY) {
+        count_rocky = 0; 
+    }
+
+    int freq = victory_song[count_rocky][0];
+    int duration = victory_song[count_rocky][1];
+
+    setHardwareTone_TIM11(freq);
+    count_rocky++;
+
+    return (uint16_t)(duration / TEMPO_VICTORY);
+}
+
+void init_speaker1(void){
         initGpioBxAsAF1(3); //PB3 as AF1 connects to CH2
         initTimer2_CH2_PWM(); // timer2 as PWM  
+}
+
+void init_speaker2(void){
+        initGpioFxAsAF3(7);// PF7 as AF3 connected to CH1
+        initTimer11_CH1_PWM(); // timer 11 as PWM
 }
