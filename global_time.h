@@ -46,6 +46,7 @@ void insertDelayToList(uint16_t timernumber, double timeouttime, double t0_ms);
 void deleteDelayTimerFromList(uint16_t index);
 double absoluteVal_double(double x);
 void timeoutCheck(void);
+void cleartimeoutlist(void);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus

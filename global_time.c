@@ -115,3 +115,13 @@ void timeoutCheck(void)
         index = index + 1;
     }
 }
+
+void cleartimeoutlist(void)
+{
+
+    for (int i = 0; i < delay_list.sizeoflist; i++)
+    {
+        deleteDelayTimerFromList(i);
+
+    }
+}

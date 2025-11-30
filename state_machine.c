@@ -153,7 +153,6 @@ void state_machine(event newevent){
             }
 
             if (newevent.type == BUTTON_PRESSED){
-                
 
                 current_state.type = SABER_INITIALIZE;
 
@@ -163,6 +162,10 @@ void state_machine(event newevent){
                 //turn off chill intro music
                 stopAudio();
                 resetMusicCounter();
+
+                // clear the timeout list before entering new state to avoid 
+                // unfinished timeouts when a button is pressed
+                cleartimeoutlist();
 
                 enqueue_event(START_TIMEOUT, 3, 500);
             }
@@ -211,7 +214,7 @@ void state_machine(event newevent){
                 enqueue_event(START_TIMEOUT, 3, 1000);
 
                 saber_init_flag = 1;
-                led1_flag       = 1;
+                led1_flag = 1;
 
             } 
 
@@ -226,6 +229,8 @@ void state_machine(event newevent){
 
             else if (newevent.type == NO_COLOUR_DETECTED){
                 current_state.type = IDLE;
+                idle_start_flag = 0;
+                // clear the event queue when entering idle state
             }
             
             else if (newevent.type == TIMEOUT) {
@@ -241,7 +246,6 @@ void state_machine(event newevent){
 
                         uint16_t duration_to_wait = playLED_Scan();
                         enqueue_event(START_TIMEOUT, 2, duration_to_wait);
-
 
                         saber_init_flag = 2;
                     }
@@ -334,6 +338,10 @@ void state_machine(event newevent){
                 current_state.type = SABER_READY;
 
                 saber_start_flag = 0;
+
+                // clear the timeout list before entering new state to avoid 
+                // unfinished timeouts when a new state is entered
+                cleartimeoutlist();
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -403,6 +411,11 @@ void state_machine(event newevent){
                 current_state.type = IDLE;
 
                 saber_stop_flag = 0;
+
+                // clear the timeout list before entering new state to avoid 
+                // unfinished timeouts when a new state is entered
+                cleartimeoutlist();
+
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -448,9 +461,11 @@ void state_machine(event newevent){
         case SABER_READY:  
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IN_GAME_WAITING;
-            }
 
-            // start playing imperial march here
+                // clear the timeout list before entering new state to avoid 
+                // unfinished timeouts when a new state is entered
+                cleartimeoutlist();
+            }
 
             break;
 
@@ -458,14 +473,14 @@ void state_machine(event newevent){
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = SABER_TURN_OFF;
 
-
-
                 saber_start_flag = 0;
                 led_on_count = 0;
                 led_off_count = 144;
                 idle_start_flag = 0;
-                
 
+                // clear the timeout list before entering new state to avoid 
+                // unfinished timeouts when a new state is entered
+                cleartimeoutlist();
             }
 
             if (in_game_flag == 0){
@@ -476,7 +491,6 @@ void state_machine(event newevent){
 
                 // start timeout for speaker
                 enqueue_event(START_TIMEOUT, 2, duration_to_wait);   // enque timeout request, fill up delay duration 
-                // @ korell need to choose a delay duration based on the music
 
                 // set the flag
                 in_game_flag = 1;
@@ -507,10 +521,7 @@ void state_machine(event newevent){
 
                 }  
             }
-        
-
             break;
-
     }
 
 }
