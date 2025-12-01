@@ -179,39 +179,39 @@ void LED_state_set(uint32_t input)
 // takes converted gummy phototransistor reading then returns corresponding lightsaber color
 uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
     
-    // array [red, blue, green, yellow
-    if (array[0] < 10 && array[1] > 90) {
+
+    // red gummy
+    // red: 6   |  blue: 94 | green: 99 | yellow: 76
+
+    // green gummy
+    // red: 80  |  blue: 95 | green: 76 | yellow: 89
+
+    // blue gummy
+    // red: 86  |  blue: 30 | green: 66 | yellow: 90
+
+    // purple
+    // red: 79  |  blue: 67 | green: 91 | yellow: 83
+
+    // array [red, blue, green, yellow]
+    if (array[0] < 30 && array[1] > 80) {
         printf("color is %d\n", 1);
         return 1; // this is red
-    } else if (array[0] < 60 && array[0] > 40) {
+    } else if (array[1] > 80 && array[2] < 90) {
         printf("color is %d\n", 2);
         return 2; // this is green
-    } else if (array[0] < 35 && array[1] < 80) {
+    } else if (array[1] < 50 && array[2] < 80) {
         printf("color is %d\n", 4);
-        return 4; // this is white
-
+        return 3; // this is blue
+    } else if (array[1] < 80 && array[2] > 80) {
+        // extremely similar to blue
+        printf("color is %d\n - Welcome home, Master Windu", 3);
+        return 4; // this is purple
     }
-    /* write else if for blue */ 
 
     else {
         printf("no gummy\n");
         return 0; // no color detected - return to idle
     }
-
-    // red gummy
-    // red: 5  |  blue: 95 | green: 98 | yellow: 89
-
-    // green gummy
-    // red: 58 |  blue: 79 | green: 96 | yellow: 91
-
-    // yellow gummy
-    // red: 6  |  blue: 89 | green: 81 | yellow: 80
-
-    // blue gummy
-    // red:    |  blue:  | green:  |  yellow:  
-
-    // white gummy
-    // red: 14 |  blue: 63 | green: 83 | yellow: 81
 
 }
 
