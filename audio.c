@@ -123,34 +123,28 @@ static int victory_song[][2] = {
 };
 
 static int mario_game_over[][2] = {
-    // --- PART 1: The "Death" Riff (Fast) ---
-    // Fast descending arpeggio (C -> G -> E -> A -> B -> A -> G# -> A# -> G# -> G)
-    {523, 120}, // C5
-    {392, 120}, // G4
-    {330, 120}, // E4
-    
-    {440, 100}, // A4
-    {494, 100}, // B4
-    {440, 100}, // A4
-    
-    {415, 100}, // G#4
-    {466, 100}, // A#4
-    {415, 100}, // G#4
-    
-    {392, 100}, // G4
-    {330, 100}, // E4 (Drop down)
+    // --- PHRASE 1: C Major (Descending) ---
+    // "Ba - da - da"
+    {523, 400}, // C5
+    {392, 400}, // G4
+    {330, 400}, // E4
 
-    // --- PART 2: The Main "Game Over" Theme ---
-    // Slow, sad descending notes
-    {466, 450}, // Bb4 (Da...)
-    {440, 450}, // A4  (Da...)
-    {415, 450}, // G#4 (Da...)
-    
-    // The Final "Dum-Dum"
-    {392, 350}, // G4
-    {262, 350}, // C4 (Low resolution)
-    {330, 800}, // E4 (Final Chord hint)
+    // --- PHRASE 2: B (Shift Down) ---
+    // "Ba - da - da" (The part that was wrong in your code)
+    {494, 400}, // B4
+    {370, 400}, // F#4 (Gb4)
+    {311, 400}, // D#4 (Eb4)
 
+    // --- PHRASE 3: Bb (Shift Down Again) ---
+    // "Ba - da - da"
+    {466, 400}, // Bb4 (A#4)
+    {349, 400}, // F4
+    {294, 400}, // D4
+
+    // --- PHRASE 4: Resolution ---
+    // The final slow drop
+    {262, 1200},// C4 (Long low note)
+    
     // --- FINISH ---
     {0, 500}
 };
@@ -177,7 +171,7 @@ static int LED_scan[][2] = {
 #define TEMPO_SCAN          1
 #define TEMPO_SABER_OFF     1
 #define TEMPO_VICTORY       0.25
-#define TEMPO_GAME_OVER     0.25
+#define TEMPO_GAME_OVER     0.5
 
 // State Counters (Separate for each song)
 static int count_main = 0;
