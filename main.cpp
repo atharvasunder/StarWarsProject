@@ -34,9 +34,9 @@ int main (void)
     {
         // int16_t reader = read_INPUT();
         init_phototransistor();
-        int16_t photo_analog = read_phototransistor();
-        int8_t converted = converted_phototransistor(photo_analog);
-        pc.printf("what is the value, %d\n", converted);
+        uint16_t read = read_phototransistor();
+        uint8_t  scaled = converted_phototransistor(read);
+        pc.printf("raw=%u, scaled=%u\n", read, scaled);
     }
 }
 

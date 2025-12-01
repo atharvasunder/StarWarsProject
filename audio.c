@@ -75,7 +75,7 @@
 #define TEMPO_SCAN          1
 #define TEMPO_SABER_OFF     1
 #define TEMPO_VICTORY       0.25
-#define TEMPO_GAME_OVER     0.5
+#define TEMPO_GAME_OVER     0.75
 
 // --- 2. Sound Data Arrays ---
 
