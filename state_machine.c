@@ -103,6 +103,7 @@ void init_state_machine(void) {
 
         // initialize hilt speaker
         init_speaker1();
+        init_speaker2();
 
         // initialize vibration motor 
         init_vibration_motor();
@@ -148,6 +149,7 @@ void state_machine(event newevent){
 
                 saber_init_flag = 0;    // for led cycling to happen everytime from idle state
                 in_game_flag = 0;
+                score = 0;
                 
                 strip_color.r = 0;
                 strip_color.g = 0;
@@ -529,7 +531,7 @@ void state_machine(event newevent){
 
             if (newevent.type == GO_TO_PARRYING){
                 current_state.type = IN_GAME_PARRYING;
-                debugprintHelloWorld();
+                // debugprintHelloWorld();
             }
 
             else if (newevent.type == END_GAME){
@@ -541,7 +543,7 @@ void state_machine(event newevent){
                     idle_start_flag = 0;
                     end_of_game_flag = 0;
                     current_swing_number = 0;
-                    score = 0;
+                    
 
                     reset_game_time(); 
                     stopAudio();
@@ -549,7 +551,7 @@ void state_machine(event newevent){
                     // clear the timeout list before entering new state to avoid 
                     // unfinished timeouts when a new state is entered
                     cleartimeoutlist();
-                    debugprintHelloWorld();
+                    // debugprintHelloWorld();
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -652,7 +654,7 @@ void state_machine(event newevent){
 
             if (newevent.type == GO_TO_WAITING){
                 current_state.type = IN_GAME_WAITING;
-                debugprintHelloWorld();
+                // debugprintHelloWorld();
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -737,9 +739,10 @@ void state_machine(event newevent){
                 // start speaker sounds, vibrations, light blinking with respective timeouts
                 // based on whether player won or lost.
                 if (score > 3){
+
                     // start speaker rocky balboa song
                     resetMusicCounter();
-                    uint16_t duration_to_wait = playVictory();
+                    uint16_t duration_to_wait = playGameOVer();
 
                     // start timeout for speaker
                     enqueue_event(START_TIMEOUT, 2, duration_to_wait);
@@ -767,11 +770,13 @@ void state_machine(event newevent){
                 // set flag
                 end_of_game_flag = 1;
 
-                debugprintHelloWorld();
+                // debugprintHelloWorld();
             }
 
             if (newevent.type == GAME_OVER){
                 current_state.type = SABER_TURN_OFF;
+                cleartimeoutlist();
+
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -792,7 +797,7 @@ void state_machine(event newevent){
                     
                     if (score > 3){
                         // play speaker (send 1 set of bits before the next timeout)
-                        uint16_t duration_to_wait = playVictory();
+                        uint16_t duration_to_wait = playGameOVer();
                         // start timeout for speaker
                         enqueue_event(START_TIMEOUT, 2, duration_to_wait);
                     }
@@ -815,7 +820,7 @@ void state_machine(event newevent){
 
                     // start timeout for speaker
                     enqueue_event(GAME_OVER, 0, 0);
-                    debugprintHelloWorld();
+                    // debugprintHelloWorld();
 
                 }
 

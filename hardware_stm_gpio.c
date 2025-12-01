@@ -516,34 +516,70 @@ void initGpioFxAsAF3(uint8_t pin)
     // 1. Enable Clock for GPIOF
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
     
+    // If you want this function to ALSO take care of the timer clock (like the PF7 version),
+    // uncomment this:
     // RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
 
     // 2. Set Mode to Alternate Function (10)
-    PORTF_MODER &= ~(3UL << (pin * 2U));
-    PORTF_MODER |=  (2UL << (pin * 2U));
+    PORTF_MODER &= ~(3UL << (pin * 2U));   // clear mode bits
+    PORTF_MODER |=  (2UL << (pin * 2U));   // set AF mode
 
-    // 3. Set Output Type to Push-Pull (0) .
-    PORTF_OTYPER |= (1UL << pin); 
+    // 3. Set Output Type to Push-Pull (0)
+    PORTF_OTYPER &= ~(1UL << pin);         // ensure push-pull
 
     // 4. Set Speed to Fast/High (10)
-    PORTF_OSPEEDR &= ~(3UL << (pin * 2U));
-    PORTF_OSPEEDR |=  (2UL << (pin * 2U));
+    PORTF_OSPEEDR &= ~(3UL << (pin * 2U)); // clear speed bits
+    PORTF_OSPEEDR |=  (2UL << (pin * 2U)); // set fast speed
 
     // 5. Set Pull-Up/Down to None (00)
-    PORTF_PUPDR &= ~(3UL << (pin * 2U));
-    PORTF_PUPDR |=  (1UL << (pin * 2U));
+    PORTF_PUPDR &= ~(3UL << (pin * 2U));   // clear both bits -> 00 (no pull)
 
-    // 6. Set Alternate Function to AF3 (0011 binary = 3 decimal)
+    // 6. Set Alternate Function to AF3 (TIM11_CH1)
     if (pin < 8) {
         uint32_t shift = pin * 4U;
-        PORTF_AFRL &= ~(0xFUL << shift); // Clear current settings
-        PORTF_AFRL |=  (3UL << shift);   // Set to AF3
+        PORTF_AFRL &= ~(0xFUL << shift);   // clear existing AF
+        PORTF_AFRL |=  (3UL   << shift);   // AF3
     } else {
         uint32_t shift = (pin - 8) * 4U;
-        PORTF_AFRH &= ~(0xFUL << shift); // Clear current settings
-        PORTF_AFRH |=  (3UL << shift);   // Set to AF3
+        PORTF_AFRH &= ~(0xFUL << shift);   // clear existing AF
+        PORTF_AFRH |=  (3UL   << shift);   // AF3
     }
 }
+
+
+// void initGpioFxAsAF3(uint8_t pin)
+// {
+//     // 1. Enable Clock for GPIOF
+//     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    
+//     // RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
+
+//     // 2. Set Mode to Alternate Function (10)
+//     PORTF_MODER &= ~(3UL << (pin * 2U));
+//     PORTF_MODER |=  (2UL << (pin * 2U));
+
+//     // 3. Set Output Type to Push-Pull (0) .
+//     PORTF_OTYPER &= ~(1UL << pin); 
+
+//     // 4. Set Speed to Fast/High (10)
+//     PORTF_OSPEEDR &= ~(3UL << (pin * 2U));
+//     PORTF_OSPEEDR |=  (2UL << (pin * 2U));
+
+//     // 5. Set Pull-Up/Down to None (00)
+//     PORTF_PUPDR &= ~(3UL << (pin * 2U));
+//     PORTF_PUPDR |=  (1UL << (pin * 2U));
+
+//     // 6. Set Alternate Function to AF3 (0011 binary = 3 decimal)
+//     if (pin < 8) {
+//         uint32_t shift = pin * 4U;
+//         PORTF_AFRL &= ~(0xFUL << shift); // Clear current settings
+//         PORTF_AFRL |=  (3UL << shift);   // Set to AF3
+//     } else {
+//         uint32_t shift = (pin - 8) * 4U;
+//         PORTF_AFRH &= ~(0xFUL << shift); // Clear current settings
+//         PORTF_AFRH |=  (3UL << shift);   // Set to AF3
+//     }
+// }
 
 void initGpioHxAsAF4(uint8_t pin)
 {

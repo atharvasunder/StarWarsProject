@@ -177,7 +177,7 @@ static int LED_scan[][2] = {
 #define TEMPO_SCAN          1
 #define TEMPO_SABER_OFF     1
 #define TEMPO_VICTORY       0.25
-#define TEMPO_GAME_OVER     0.4
+#define TEMPO_GAME_OVER     0.25
 
 // State Counters (Separate for each song)
 static int count_main = 0;
@@ -206,7 +206,7 @@ static void setHardwareTone(uint32_t freq) {
 }
 static void setHardwareTone_TIM11(uint32_t freq) {
     uint32_t * arr_reg_2 = (uint32_t*)TIM11_AUTORELOAD_REGISTER;
-    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_COMPARE_2_REGISTER;
+    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_CCR1_REGISTER;
     
     if (freq == 0) {
         *ccr_reg_2 = 0; 
@@ -234,7 +234,7 @@ void resetMusicCounter(void) {
 // Call this to silence the speaker immediately
 void stopAudio(void) {
 
-    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_COMPARE_2_REGISTER;
+    uint32_t * ccr_reg_2 = (uint32_t*)TIM11_CCR1_REGISTER;
     uint32_t * ccr_reg = (uint32_t*)TIM2_COMPARE_2_REGISTER;
     *ccr_reg = 0; 
     *ccr_reg_2 = 0;

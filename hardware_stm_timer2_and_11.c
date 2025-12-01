@@ -22,7 +22,7 @@ void initTimer2_CH2_PWM( void )
 
     /* 2. Set Duty Cycle (Pulse Width) */
     reg_pointer = (uint32_t*)TIM2_COMPARE_2_REGISTER;
-    *reg_pointer = 500; 
+    *reg_pointer = 0; 
 
     /* 3. Configure PWM Mode for Channel 2 */
     
@@ -62,7 +62,7 @@ void initTimer11_CH1_PWM( void )
     /* 2. Set Duty Cycle (Pulse Width) */
     // TIM11 only has Channel 1, so we use CCR1
     reg_pointer = (uint32_t*)TIM11_CCR1_REGISTER;
-    *reg_pointer = 500; 
+    *reg_pointer = 0; 
 
     /* 3. Configure PWM Mode for Channel 1 */
     
