@@ -2,7 +2,72 @@
 #include "hardware_stm_timer2_and_11.h"
 #include "hardware_stm_gpio.h" 
 
-// --- 1. Sound Data Arrays ---
+/*
+ * ======================================================================================
+ * AUDIO SYSTEM ARCHITECTURE
+ * ======================================================================================
+ * * 1. DATA STRUCTURE (The "Sheet Music")
+ * -------------------------------------
+ * Songs are stored as 2D arrays: static int song_name[][2]
+ * - Column 0: Frequency (Hz). 0 Hz represents a rest (silence).
+ * - Column 1: Duration (ms). How long the note should play.
+ * - Example: {523, 400} plays High C for 400 milliseconds.
+ * * 2. PLAYBACK LOGIC (The "Musician")
+ * ----------------------------------
+ * Each song has a dedicated function (e.g., playMarioGameOver, playRockyTheme).
+ * These functions are designed to be Non-Blocking.
+ * - Counters: Each song has a static 'count' variable tracking the current note index.
+ * - Tempo:    A macro (e.g., TEMPO_GAMEOVER) divides the duration to speed up/slow down playback.
+ * - Logic:    When called, the function:
+ * 1. Reads the Frequency/Duration at the current 'count'.
+ * 2. Calls setHardwareTone() to update the physical Timer registers.
+ * 3. Increments 'count' for the next call.
+ * 4. Returns the Duration (in ms) to the State Machine.
+ * * 3. HARDWARE INTERFACE (The "Instrument")
+ * ----------------------------------------
+ * - setHardwareTone_TIM11(freq): 
+ * Converts a Frequency (Hz) into Timer Auto-Reload (ARR) and Capture Compare (CCR) values.
+ * It drives the PWM signal on the speaker pin.
+ * If freq == 0, it sets Duty Cycle to 0% (Silence).
+ * * 4. ROLE IN STATE MACHINE (The "Conductor")
+ * ------------------------------------------
+ * The Audio System is event-driven to allow multitasking (LEDs + Audio).
+ * * Step A: State Entry
+ * - Call resetAudioCounters() to ensure the song starts from the beginning.
+ * - Call playSong() once to start the first note.
+ * - Use the returned duration to Enqueue a START_TIMEOUT event.
+ * * Step B: TIMEOUT Event
+ * - When the timeout expires, the State Machine receives a TIMEOUT event (param 2).
+ * - It calls playSong() again to get the NEXT note.
+ * - It enqueues a new START_TIMEOUT for the new duration.
+ * * Step C: Song Completion
+ * - If the counter reaches the end of the array, playSong() returns 0 or stops audio.
+ * - The State Machine transitions to a new state (e.g., IN_GAME) or stops the loop.
+ * * ======================================================================================
+ */
+
+
+// --- 1. Configuration (Counts & Tempos) ---
+
+// Note Counts
+#define COUNT_MAIN      (sizeof(main_theme) / sizeof(main_theme[0]))
+#define COUNT_IMPERIAL  (sizeof(imperial_march_analog) / sizeof(imperial_march_analog[0]))
+#define COUNT_SABER     (sizeof(lightsaber_effect) / sizeof(lightsaber_effect[0]))
+#define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
+#define COUNT_SABER_OFF (sizeof(lightsaber_off_effect) / sizeof(lightsaber_off_effect[0]))
+#define COUNT_ROCKY     (sizeof(victory_song) / sizeof(victory_song[0]))
+#define COUNT_GAMEOVER  (sizeof(mario_game_over) / sizeof(mario_game_over[0]))
+
+// Tempo Dividers (Lower = Slower, Higher = Faster)
+#define TEMPO_MAIN          1  // Slow, cinematic
+#define TEMPO_IMPERIAL      1.0  // Standard march speed
+#define TEMPO_SABER         1  // Fast enough to make "hum" sound continuous
+#define TEMPO_SCAN          1
+#define TEMPO_SABER_OFF     1
+#define TEMPO_VICTORY       0.25
+#define TEMPO_GAME_OVER     0.5
+
+// --- 2. Sound Data Arrays ---
 
 // A. Imperial March
 static int imperial_march_analog[][2] = {
@@ -153,25 +218,7 @@ static int LED_scan[][2] = {
     {2000, 190} // High pitch tone
          // Tiny silence buffer 
 };
-// --- 2. Configuration (Counts & Tempos) ---
 
-// Note Counts
-#define COUNT_MAIN      (sizeof(main_theme) / sizeof(main_theme[0]))
-#define COUNT_IMPERIAL  (sizeof(imperial_march_analog) / sizeof(imperial_march_analog[0]))
-#define COUNT_SABER     (sizeof(lightsaber_effect) / sizeof(lightsaber_effect[0]))
-#define COUNT_SCAN      (sizeof(LED_scan) / sizeof(LED_scan[0]))
-#define COUNT_SABER_OFF (sizeof(lightsaber_off_effect) / sizeof(lightsaber_off_effect[0]))
-#define COUNT_ROCKY     (sizeof(victory_song) / sizeof(victory_song[0]))
-#define COUNT_GAMEOVER  (sizeof(mario_game_over) / sizeof(mario_game_over[0]))
-
-// Tempo Dividers (Lower = Slower, Higher = Faster)
-#define TEMPO_MAIN          1  // Slow, cinematic
-#define TEMPO_IMPERIAL      1.0  // Standard march speed
-#define TEMPO_SABER         1  // Fast enough to make "hum" sound continuous
-#define TEMPO_SCAN          1
-#define TEMPO_SABER_OFF     1
-#define TEMPO_VICTORY       0.25
-#define TEMPO_GAME_OVER     0.5
 
 // State Counters (Separate for each song)
 static int count_main = 0;
