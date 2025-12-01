@@ -308,10 +308,6 @@ void state_machine(event newevent){
                         saber_init_flag = 5;    // ensures this condition does not get visited again
                         led_on_count = 0;
 
-                        // for (uint8_t i = 0; i < 4; i++) {
-                        //     printf("\n%d", gummy_responses[i]);
-                        //     }
-
                         gummy_color = gummy_to_saber(gummy_responses, 4);
 
                         if (gummy_color != 0) {
