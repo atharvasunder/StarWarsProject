@@ -65,7 +65,7 @@ rgb_color wrong_swing_color;
 
 // game ground truths for keeping score
 // 1: up, 2: down, 3: left, 4: right
-uint16_t swing_directions_gt[6] = {1,2,3,4,3,2};
+uint16_t swing_directions_gt[6] = {1,1,4,1,3,2};
 uint8_t current_swing_number = 0;
 uint8_t total_swings = 6;
 uint8_t score = 0;
@@ -716,7 +716,7 @@ void state_machine(event newevent){
                     // while the vibration motor runs? and use this event to finalize the swing direction
 
                     // for now implemented as all swings successful, to be changed
-                    swing_directions_game[current_swing_number] = swing_directions_gt[current_swing_number];
+                    swing_directions_game[current_swing_number] = 1;
 
                     // enqueue event for correct or wrong swing direction
                     if (swing_directions_game[current_swing_number] == swing_directions_gt[current_swing_number]){
@@ -742,7 +742,7 @@ void state_machine(event newevent){
 
                     // start speaker rocky balboa song
                     resetMusicCounter();
-                    uint16_t duration_to_wait = playGameOVer();
+                    uint16_t duration_to_wait = playVictory();
 
                     // start timeout for speaker
                     enqueue_event(START_TIMEOUT, 2, duration_to_wait);
@@ -751,6 +751,9 @@ void state_machine(event newevent){
                     set_vibration_motor();
 
                     // start LED strip blinking (toggle led strip)
+                    toggle_led_strip(&strip_color, leds);
+
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
                 }
 
@@ -761,6 +764,12 @@ void state_machine(event newevent){
                     enqueue_event(START_TIMEOUT, 2, duration_to_wait);
 
                     // turn led strip red, will be toggled too
+                    strip_color.r = 255;
+                    strip_color.g = 0;
+                    strip_color.b = 0;
+
+                    toggle_led_strip(&strip_color, leds);
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
                 }
 
@@ -788,8 +797,10 @@ void state_machine(event newevent){
                 if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
                     // toggle led strip
-                    
-                    // start a timeout
+                    toggle_led_strip(&strip_color, leds);
+
+                    // start a timeout of 1 sec
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
                 }
 
@@ -797,7 +808,7 @@ void state_machine(event newevent){
                     
                     if (score > 3){
                         // play speaker (send 1 set of bits before the next timeout)
-                        uint16_t duration_to_wait = playGameOVer();
+                        uint16_t duration_to_wait = playVictory();
                         // start timeout for speaker
                         enqueue_event(START_TIMEOUT, 2, duration_to_wait);
                     }
@@ -820,10 +831,10 @@ void state_machine(event newevent){
 
                     // start timeout for speaker
                     enqueue_event(GAME_OVER, 0, 0);
-                    // debugprintHelloWorld();
+
+                    set_all_leds(leds, &strip_color);
 
                 }
-
             }            
 
             break;
