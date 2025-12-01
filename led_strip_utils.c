@@ -19,7 +19,7 @@
 /*------------------------------variable definitions-----------------------------*/
 /*variable declerations*/
 uint16_t led_message[MESSAGE_LENGTH];    // from here messages are sent through pwm
-
+uint8_t strip_is_on = 0;
 /* function definitions----------------------------------------------------------*/
 
 uint16_t* get_led_message_address(void){
@@ -44,6 +44,7 @@ void reset_all_leds(neopixel_led* leds)
 
     // begin varying duty cycle in such a way that the led color is set (to off here)
     enableDMAForTimer3Channel2();
+    strip_is_on = 0;
 }
 
 // Convert one byte (0–255) into 8 logical zero/one entries
@@ -83,6 +84,8 @@ void set_all_leds(neopixel_led* leds, rgb_color* strip_color)
     // begin varying duty cycle in such a way that the led color is set
     enableDMAForTimer3Channel2();
 
+    strip_is_on = 1;
+
 }
 
 void set_n_leds(rgb_color* strip_color, neopixel_led* leds, uint16_t n){
@@ -107,6 +110,14 @@ void set_n_leds(rgb_color* strip_color, neopixel_led* leds, uint16_t n){
 
     // begin varying duty cycle in such a way that the led color is set
     enableDMAForTimer3Channel2();
+
+    if (n > 0){
+        strip_is_on = 1;
+    }
+    else{
+        strip_is_on = 0;
+    }
+    
 }
 
 void get_led_message(neopixel_led* leds)
@@ -163,3 +174,12 @@ void init_led_strip(void){
     initTimer3PWM(8, 13);   // 8: PSC, 13: ARR
 }
 
+void toggle_led_strip(rgb_color* strip_color, neopixel_led* leds){
+    if (strip_is_on == 1){
+        reset_all_leds(leds);
+    }
+
+    else if (strip_is_on == 0){
+        set_all_leds(leds, strip_color);
+    }
+}

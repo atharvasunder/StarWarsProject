@@ -114,15 +114,15 @@ void clear_LED_Yellow( void )
 
 /* Vibration Motor Stuff */
 void init_vibration_motor( void ) {
-    initGpioBxAsOutput_PD(13);
+    initGpioBxAsOutput_PD(11);
 }
 
 void set_vibration_motor (void) {
-    setGPIOBx(13);
+    setGPIOBx(11);
 }
 
 void clear_vibration_motor (void) {
-    clearGPIOBx(13);
+    clearGPIOBx(11);
 }
 
 

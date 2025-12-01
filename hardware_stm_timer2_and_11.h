@@ -6,6 +6,7 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 // Register Definition
 #define TIM2_BASE_ADDRESS        ((uint32_t)0x40000000)
@@ -67,47 +68,38 @@
 #define TIM_CCMR1_OC2M_MASK (0b111 << 12)
 // #define TIM_CCMR1_OC2M_MASK (0b111 << 12)
 
-/* CR1 Register */
-#define TIM_CR1_CEN             ((uint32_t)(1 << 0)) // Counter Enable
-#define TIM_CR1_ARPE            ((uint32_t)(1 << 7)) // Auto-Reload Preload Enable
-
-/* CCMR1 Register (Flags for Channel 2) */
-// Mask to clear OC2M bits (bits 14:12)
 
 // Value to set PWM Mode 1 (110) on Channel 2
 #define TIM_CCMR1_OC2M_PWM1     ((uint32_t)(0b110 << 12))
-// Value to enable Preload on Channel 2 (bit 11)
-#define TIM_CCMR1_OC2PE         ((uint32_t)(1 << 11))
 
-/* CCER Register (Flags for Channel 2) */
-// Value to enable Channel 2 output (bit 4)
-#define TIM_CCER_CC2E           ((uint32_t)(1 << 4))
-#define TIM_CR1_CEN             ((uint32_t)(1 << 0)) // Counter Enable
-#define TIM_CR1_ARPE            ((uint32_t)(1 << 7)) // Auto-Reload Preload Enable
+#define TIM11_BASE_ADDRESS              ((uint32_t)0x40014800)
 
-/* CCMR1 Register (Flags for Channel 2) */
-// Value to set PWM Mode 1 (110) on Channel 2
-#define TIM_CCMR1_OC2M_PWM1     ((uint32_t)(0b110 << 12))
-// Value to enable Preload on Channel 2 (bit 11)
-// #define TIM_CCMR1_OC2PE         ((uint32_t)(1 << 11))
+#define TIM11_CR1_REGISTER              (TIM11_BASE_ADDRESS + 0x00)
+#define TIM11_CCMR1_REGISTER            (TIM11_BASE_ADDRESS + 0x18)
+#define TIM11_CCER_REGISTER             (TIM11_BASE_ADDRESS + 0x20)
+#define TIM11_CNT_REGISTER              (TIM11_BASE_ADDRESS + 0x24)
+#define TIM11_PSC_REGISTER              (TIM11_BASE_ADDRESS + 0x28)
+#define TIM11_ARR_REGISTER              (TIM11_BASE_ADDRESS + 0x2C)
+#define TIM11_CCR1_REGISTER             (TIM11_BASE_ADDRESS + 0x34) // Channel 1
+#define TIM11_AUTORELOAD_REGISTER       (TIM11_BASE_ADDRESS + 0X2C)
+#define TIM11_COMPARE_2_REGISTER        (TIM11_BASE_ADDRESS + 0x38)
 
-/* CCER Register (Flags for Channel 2) */
-// Value to enable Channel 2 output (bit 4)
-// #define TIM_CCER_CC2E           ((uint32_t)(1 << 4))
-/* Includes ------------------------------------------------------------------*/
+// --- Flags for Channel 1 (Different from Channel 2!) ---
 
-/* Macros for Everyone--------------------------------------------------------*/
+// Mask to clear OC1M bits (Bits 6:4)
+#define TIM_CCMR1_OC1M_MASK             ((uint32_t)(0b111 << 4))
+// PWM Mode 1 for Channel 1 (110 shifted to bit 4)
+#define TIM_CCMR1_OC1M_PWM1             ((uint32_t)(0b110 << 4))
+// Preload Enable for Channel 1 (Bit 3)
+#define TIM_CCMR1_OC1PE                 ((uint32_t)(1 << 3))
+// Output Enable for Channel 1 (Bit 0 in CCER)
+#define TIM_CCER_CC1E                   ((uint32_t)(1 << 0))
 
 /*Function definitions---------------------------------------------------------*/
-// void initTimer2(void);
-// void init_LED1(void);
-// void toggle_LED1(void);
-// void initTimerAsOutputComparePB0(void);
-// void initTimer2CH1AsInputCaptureOnPC6( void );
-// uint16_t getCaptureTimer2CH1(void);
+
 
 void initTimer2_CH2_PWM( void );
-// extern volatile uint16_t capturedValue_TIM3CH1;
+void initTimer11_CH1_PWM( void );
 
 
 

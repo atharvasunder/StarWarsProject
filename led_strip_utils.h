@@ -70,6 +70,7 @@ void convert_rgb_to_neopixel(rgb_color *in, neopixel_led *out);
 void set_n_leds(rgb_color* strip_color, neopixel_led* leds, uint16_t n);
 void delay_long(void);
 void init_led_strip(void);
+void toggle_led_strip(rgb_color* strip_color, neopixel_led* leds);
 
 /*end c++ compilation compatibility */
 #ifdef __cplusplus

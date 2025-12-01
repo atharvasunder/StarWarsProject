@@ -18,7 +18,7 @@
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_timer3.h"
 #include "global_time.h"
-#include "hardware_stm_timer2.h"
+#include "hardware_stm_timer2_and_11.h"
 #include "audio.h"
 #include <stdbool.h>
 
@@ -65,7 +65,7 @@ rgb_color wrong_swing_color;
 
 // game ground truths for keeping score
 // 1: up, 2: down, 3: left, 4: right
-uint16_t swing_directions_gt[6] = {1,2,3,4,3,2};
+uint16_t swing_directions_gt[6] = {1,1,4,1,3,2};
 uint8_t current_swing_number = 0;
 uint8_t total_swings = 6;
 uint8_t score = 0;
@@ -102,7 +102,8 @@ void init_state_machine(void) {
         // initialize pins, ADCs for accelerometer (don't need to start the ADC yet?)
 
         // initialize hilt speaker
-        init_speaker();
+        init_speaker1();
+        init_speaker2();
 
         // initialize vibration motor 
         init_vibration_motor();
@@ -137,7 +138,10 @@ void init_state_machine(void) {
 }
 
 void state_machine(event newevent){
-
+    // printf("STATE=%d, EVENT=%d, param1=%u, param2=%f, t=%u\n",
+    //        current_state.type, newevent.type,
+    //        newevent.param1, newevent.param2,
+    //        current_time_ms());
     switch (current_state.type){
         case IDLE:
             
@@ -145,6 +149,7 @@ void state_machine(event newevent){
 
                 saber_init_flag = 0;    // for led cycling to happen everytime from idle state
                 in_game_flag = 0;
+                score = 0;
                 
                 strip_color.r = 0;
                 strip_color.g = 0;
@@ -303,9 +308,9 @@ void state_machine(event newevent){
                         saber_init_flag = 5;    // ensures this condition does not get visited again
                         led_on_count = 0;
 
-                        for (uint8_t i = 0; i < 4; i++) {
-                            printf("\n%d", gummy_responses[i]);
-                            }
+                        // for (uint8_t i = 0; i < 4; i++) {
+                        //     printf("\n%d", gummy_responses[i]);
+                        //     }
 
                         gummy_color = gummy_to_saber(gummy_responses, 4);
 
@@ -354,13 +359,16 @@ void state_machine(event newevent){
             }
 
             if (newevent.type == SABER_ON){
+
                 current_state.type = SABER_READY;
 
                 saber_start_flag = 0;
-
+                
                 // clear the timeout list before entering new state to avoid 
                 // unfinished timeouts when a new state is entered
                 cleartimeoutlist();
+
+                enqueue_event(START_TIMEOUT, 30, 10000);    // start 10 second timer, if it expires, go to idle state
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -477,13 +485,22 @@ void state_machine(event newevent){
             }   
             break;
 
-        case SABER_READY:  
+        case SABER_READY:
+
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IN_GAME_WAITING;
 
                 // clear the timeout list before entering new state to avoid 
                 // unfinished timeouts when a new state is entered
                 cleartimeoutlist();
+            }
+
+            else if (newevent.type == TIMEOUT){
+                if (newevent.param1 ==  30){
+                    current_state.type = SABER_TURN_OFF;
+
+                    cleartimeoutlist();
+                }
             }
 
             break;
@@ -521,10 +538,12 @@ void state_machine(event newevent){
 
                 // set the flag
                 in_game_flag = 1;
+                // debugprintHelloWorld();
             }
 
             if (newevent.type == GO_TO_PARRYING){
                 current_state.type = IN_GAME_PARRYING;
+                // debugprintHelloWorld();
             }
 
             else if (newevent.type == END_GAME){
@@ -536,13 +555,15 @@ void state_machine(event newevent){
                     idle_start_flag = 0;
                     end_of_game_flag = 0;
                     current_swing_number = 0;
-                    score = 0;
+                    
 
                     reset_game_time(); 
+                    stopAudio();
 
                     // clear the timeout list before entering new state to avoid 
                     // unfinished timeouts when a new state is entered
                     cleartimeoutlist();
+                    // debugprintHelloWorld();
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -576,8 +597,11 @@ void state_machine(event newevent){
                         enqueue_event(GO_TO_PARRYING, 0, 0);
 
                         // turn on vibration motor, start a vibration motor timeout
+                        set_vibration_motor();
+                        enqueue_event(START_TIMEOUT, 6, 1000);
 
                         // DON'T PUT A SWING TIMEOUT IN THE LAST CARD AS GAME WILL END AFTER THAT
+
                     }
 
                     else{
@@ -587,7 +611,11 @@ void state_machine(event newevent){
                         // start timeout of 5 seconds before next swing
                         enqueue_event(START_TIMEOUT, 4, 5000);
 
+                        // printf("Going to parrying\n");
+
                         // turn on vibration motor, start a vibration motor timeout
+                        set_vibration_motor();
+                        enqueue_event(START_TIMEOUT, 6, 1000);
                     }
 
                 }
@@ -602,6 +630,8 @@ void state_machine(event newevent){
                     // update game time
                     game_time = game_time - 5;
 
+                    // printf("\n%u",game_time);
+
                     // update swing number
                     current_swing_number ++;
 
@@ -610,6 +640,7 @@ void state_machine(event newevent){
 
                         // transition to end of game state
                         enqueue_event(END_GAME, 0, 0);
+
 
                     }
 
@@ -628,13 +659,14 @@ void state_machine(event newevent){
             //     idle_start_flag = 0;
                 
 
-            //     // clear the timeout list before entering new state to avoid 
-            //     // unfinished timeouts when a new state is entered
-            //     cleartimeoutlist();
+            // // clear the timeout list before entering new state to avoid 
+            // // unfinished timeouts when a new state is entered
+            // cleartimeoutlist();
             // }
 
             if (newevent.type == GO_TO_WAITING){
                 current_state.type = IN_GAME_WAITING;
+                // debugprintHelloWorld();
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -672,6 +704,8 @@ void state_machine(event newevent){
                     set_all_leds(leds, &strip_color);
                     enqueue_event(GO_TO_WAITING, 0, 0);
 
+                    // printf("Going to waiting\n");
+
                 }
 
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
@@ -687,18 +721,20 @@ void state_machine(event newevent){
                 else if (newevent.param1 ==  6){    // vibration motor timeout
 
                     // turn off vibration motor
+                    clear_vibration_motor();
                     
                     // check imu for swing direction? @Gun implement buffer stuff
                     // not sure if it goes in here tho, maybe we keep populating the buffer
                     // while the vibration motor runs? and use this event to finalize the swing direction
 
                     // for now implemented as all swings successful, to be changed
-                    swing_directions_game[current_swing_number] = swing_directions_gt[current_swing_number];
+                    swing_directions_game[current_swing_number] = 1;
 
                     // enqueue event for correct or wrong swing direction
                     if (swing_directions_game[current_swing_number] == swing_directions_gt[current_swing_number]){
                         enqueue_event(CORRECT_SWING_DIRECTION, 0, 0);
                         score = score + 1;
+                        
                     }
 
                     else{
@@ -715,18 +751,37 @@ void state_machine(event newevent){
                 // start speaker sounds, vibrations, light blinking with respective timeouts
                 // based on whether player won or lost.
                 if (score > 3){
+
                     // start speaker rocky balboa song
+                    resetMusicCounter();
+                    uint16_t duration_to_wait = playVictory();
+
+                    // start timeout for speaker
+                    enqueue_event(START_TIMEOUT, 20, duration_to_wait);
 
                     // start vibration motor
+                    set_vibration_motor();
 
                     // start LED strip blinking (toggle led strip)
+                    toggle_led_strip(&strip_color, leds);
+
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
                 }
 
                 else{
                     // start playing fail song
+                    resetMusicCounter();
+                    uint16_t duration_to_wait = playGameOVer();
+                    enqueue_event(START_TIMEOUT, 20, duration_to_wait);
 
                     // turn led strip red, will be toggled too
+                    strip_color.r = 255;
+                    strip_color.g = 0;
+                    strip_color.b = 0;
+
+                    toggle_led_strip(&strip_color, leds);
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
                 }
 
@@ -735,45 +790,64 @@ void state_machine(event newevent){
 
                 // set flag
                 end_of_game_flag = 1;
+
+                // debugprintHelloWorld();
             }
 
             if (newevent.type == GAME_OVER){
                 current_state.type = SABER_TURN_OFF;
+                cleartimeoutlist();
+
+            }
+
+            else if (newevent.type == START_TIMEOUT){
+                insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
             }
 
             else if (newevent.type == TIMEOUT){
                 
-                    if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
-                        
-                        // toggle led strip
-                        
-                        // start a timeout
+                if (newevent.param1 ==  1){ // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
+                    // toggle led strip
+                    toggle_led_strip(&strip_color, leds);
 
-                    }
+                    // start a timeout of 1 sec
+                    enqueue_event(START_TIMEOUT, 1, 1000);
 
-                    else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
-                        
+                }
+
+                else if (newevent.param1 ==  20){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                    
+                    if (score > 3){
                         // play speaker (send 1 set of bits before the next timeout)
-                        // uint16_t duration_to_wait = playImperialMarch();
-
+                        uint16_t duration_to_wait = playVictory();
                         // start timeout for speaker
-                        // enqueue_event(START_TIMEOUT, 2, duration_to_wait);
-
+                        enqueue_event(START_TIMEOUT, 20, duration_to_wait);
+                    }
+                    
+                    else{
+                        uint16_t duration_to_wait = playGameOVer();
+                        // start timeout for speaker
+                        enqueue_event(START_TIMEOUT, 20, duration_to_wait);
                     }
 
-                    else if (newevent.param1 ==  10){   // overall game over timeout
-                        
-                        // turn off vibration motor
+                }
 
-                        // turn off speaker
-                        
+                else if (newevent.param1 ==  10){   // overall game over timeout
+                    
+                    // turn off vibration motor
+                    clear_vibration_motor();
 
-                        // start timeout for speaker
-                        enqueue_event(GAME_OVER, 0, 0);
+                    // turn off speaker
+                    stopAudio();
 
-                    }
+                    // start timeout for speaker
+                    enqueue_event(GAME_OVER, 0, 0);
 
-                }            
+                    set_all_leds(leds, &strip_color);
+
+                }
+            }            
 
             break;
     }
