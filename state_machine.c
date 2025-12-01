@@ -359,13 +359,16 @@ void state_machine(event newevent){
             }
 
             if (newevent.type == SABER_ON){
+
                 current_state.type = SABER_READY;
 
                 saber_start_flag = 0;
-
+                
                 // clear the timeout list before entering new state to avoid 
                 // unfinished timeouts when a new state is entered
                 cleartimeoutlist();
+
+                enqueue_event(START_TIMEOUT, 30, 10000);    // start 10 second timer, if it expires, go to idle state
             }
 
             else if (newevent.type == START_TIMEOUT){
@@ -482,13 +485,22 @@ void state_machine(event newevent){
             }   
             break;
 
-        case SABER_READY:  
+        case SABER_READY:
+
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IN_GAME_WAITING;
 
                 // clear the timeout list before entering new state to avoid 
                 // unfinished timeouts when a new state is entered
                 cleartimeoutlist();
+            }
+
+            else if (newevent.type == TIMEOUT){
+                if (newevent.param1 ==  30){
+                    current_state.type = SABER_TURN_OFF;
+
+                    cleartimeoutlist();
+                }
             }
 
             break;
@@ -745,7 +757,7 @@ void state_machine(event newevent){
                     uint16_t duration_to_wait = playVictory();
 
                     // start timeout for speaker
-                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    enqueue_event(START_TIMEOUT, 20, duration_to_wait);
 
                     // start vibration motor
                     set_vibration_motor();
@@ -761,7 +773,7 @@ void state_machine(event newevent){
                     // start playing fail song
                     resetMusicCounter();
                     uint16_t duration_to_wait = playGameOVer();
-                    enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                    enqueue_event(START_TIMEOUT, 20, duration_to_wait);
 
                     // turn led strip red, will be toggled too
                     strip_color.r = 255;
@@ -804,19 +816,19 @@ void state_machine(event newevent){
 
                 }
 
-                else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
+                else if (newevent.param1 ==  20){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
                     if (score > 3){
                         // play speaker (send 1 set of bits before the next timeout)
                         uint16_t duration_to_wait = playVictory();
                         // start timeout for speaker
-                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                        enqueue_event(START_TIMEOUT, 20, duration_to_wait);
                     }
                     
                     else{
                         uint16_t duration_to_wait = playGameOVer();
                         // start timeout for speaker
-                        enqueue_event(START_TIMEOUT, 2, duration_to_wait);
+                        enqueue_event(START_TIMEOUT, 20, duration_to_wait);
                     }
 
                 }
