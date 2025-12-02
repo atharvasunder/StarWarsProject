@@ -75,6 +75,8 @@ uint8_t score = 0;
 uint16_t swing_directions_game[6] = {0,0,0,0,0,0};  // 0: undetermined swing direction
 uint8_t imu_init_flag = 0;
 
+uint8_t saber_ready_flag = 0;
+
 void init_state_machine(void) {
     /* GENERAL */
 
@@ -148,6 +150,7 @@ void state_machine(event newevent){
                 saber_init_flag = 0;    // for led cycling to happen everytime from idle state
                 in_game_flag = 0;
                 score = 0;
+                saber_ready_flag = 0;
                 
                 strip_color.r = 0;
                 strip_color.g = 0;
@@ -482,6 +485,13 @@ void state_machine(event newevent){
 
         case SABER_READY:
 
+            if (saber_ready_flag == 0){
+                saber_ready_flag = 1;
+
+                enqueue_event(START_TIMEOUT, 30, 10000);
+
+            }
+
             if (newevent.type == BUTTON_PRESSED){
                 current_state.type = IN_GAME_WAITING;
 
@@ -490,11 +500,16 @@ void state_machine(event newevent){
                 cleartimeoutlist();
             }
 
+            else if (newevent.type == START_TIMEOUT){
+                insertDelayToList(newevent.param1, newevent.param2, current_time_ms());
+            }
+
             else if (newevent.type == TIMEOUT){
                 if (newevent.param1 ==  30){
                     current_state.type = SABER_TURN_OFF;
 
                     cleartimeoutlist();
+                    idle_start_flag = 0;
                 }
             }
 
@@ -873,25 +888,25 @@ void state_machine(event newevent){
 }
 
 void get_strip_colour(uint16_t gummy_color){
-    if (gummy_color == 0){
+    if (gummy_color == 1){
         strip_color.r = 255;
         strip_color.g = 0;
         strip_color.b = 0;
     }
 
-    else if (gummy_color == 1){
+    else if (gummy_color == 2){
         strip_color.r = 0;
         strip_color.g = 255;
         strip_color.b = 0;
     }
 
-    else if (gummy_color == 2){
+    else if (gummy_color == 3){
         strip_color.r = 0;
         strip_color.g = 0;
         strip_color.b = 255;
     }
 
-    else if (gummy_color == 3){
+    else if (gummy_color == 4){
         strip_color.r = 100;
         strip_color.g = 100;
         strip_color.b = 0;

@@ -200,12 +200,15 @@ uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
         printf("color is %d\n", 2);
         return 2; // this is green
     } else if (array[1] < 50 && array[2] < 80) {
-        printf("color is %d\n", 4);
+        printf("color is %d\n", 3);
         return 3; // this is blue
-    } else if (array[1] < 80 && array[2] > 80) {
-        // extremely similar to blue
-        printf("color is %d\n - Welcome home, Master Windu", 3);
-        return 4; // this is purple
+    // } else if (array[1] < 80 && array[2] > 80) {
+    //     // extremely similar to blue
+    //     printf("color is %d\n - Welcome home, Master Windu", 3);
+    //     return 4; // this is purple
+    // }
+    } else if (array[0] < 50 && array[1] < 50) {
+        return 0; // empty
     }
 
     else {
