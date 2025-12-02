@@ -199,7 +199,7 @@ uint16_t gummy_to_saber(uint16_t *array, uint8_t len) {
     } else if (array[1] > 80 && array[2] < 90) {
         printf("color is %d\n", 2);
         return 2; // this is green
-    } else if (array[1] < 50 && array[2] < 80) {
+    } else if (array[1] < 60 && array[0] > 65) {
         printf("color is %d\n", 3);
         return 3; // this is blue
     // } else if (array[1] < 80 && array[2] > 80) {

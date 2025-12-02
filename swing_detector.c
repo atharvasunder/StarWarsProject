@@ -6,11 +6,11 @@
 #include "Time_Out.h"
 
 
-#define SWING_MIN_PEAK_DPS      80.0f   /* minimum peak angular speed */
-#define SWING_MIN_ANGLE_DEG     25.0f   /* minimum total rotation angle */
+#define SWING_MIN_PEAK_DPS      18.0f   /* minimum peak angular speed */
+#define SWING_MIN_ANGLE_DEG     10.0f   /* minimum total rotation angle */
 
 /* If |omega| ever exceeds this, we consider it a real "swing-ish" motion */
-#define SWING_START_THRESHOLD_DPS  30.0f
+#define SWING_START_THRESHOLD_DPS  10.0f
 
 
 /* Integrated angles (deg) over the window */
