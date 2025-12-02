@@ -1,3 +1,13 @@
+/**
+  ******************************************************************************
+  * @file    audio.c 
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
+  * @version 1.0
+  * @date    November-2025
+  * @brief   Contains functions for reasoning about state transitions
+  ******************************************************************************
+*/
+
 #include "audio.h"
 #include "hardware_stm_timer2_and_11.h"
 #include "hardware_stm_gpio.h" 
@@ -59,9 +69,9 @@
 #define COUNT_GAMEOVER  (sizeof(mario_game_over) / sizeof(mario_game_over[0]))
 
 // Tempo Dividers (Lower = Slower, Higher = Faster)
-#define TEMPO_MAIN          1  // Slow, cinematic
-#define TEMPO_IMPERIAL      1.0  // Standard march speed
-#define TEMPO_SABER         1  // Fast enough to make "hum" sound continuous
+#define TEMPO_MAIN          1  
+#define TEMPO_IMPERIAL      1.0
+#define TEMPO_SABER         1  
 #define TEMPO_SCAN          1
 #define TEMPO_SABER_OFF     1
 #define TEMPO_VICTORY       0.25
@@ -80,42 +90,38 @@ static int imperial_march_analog[][2] = {
 // B. Lightsaber Effect
 
 static int lightsaber_effect[][2] = {
-    // --- PHASE 1: IGNITION (Stretched to ~1.95 seconds) ---
-    // Durations multiplied by 3 to extend time without slowing the hum later
+
+
     {2000, 5}, {1500, 5}, {1000, 5}, {800, 5}, // High "Snap"
     {500, 10},  {400, 10},  {300, 10},  {200, 25}, // The "Hiss" down
     {150, 50}, {120, 50}, {110, 50}, {100, 50}, // Settling (Longer tail)
 
-    // --- PHASE 2: IDLE HUM (Unchanged - Fast & Throbbing) ---
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
     {95, 50}, {100, 50}, {105, 50}, {100, 50},
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
 
-    // --- PHASE 3: THE SWING (Doppler Effect) ---
     {110, 30}, {120, 30}, {140, 30}, {160, 30}, 
     {180, 40}, {200, 40}, {220, 40},            
     {180, 30}, {160, 30}, {140, 30}, {120, 30}, 
     {100, 100},                                 
 
-    // --- PHASE 4: IDLE HUM (Short) ---
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
 
-    // --- PHASE 5: THE CLASH (Impact) ---
+
     {800, 10}, {1500, 10}, {600, 10}, {2000, 10}, 
     {500, 10}, {1200, 10}, {700, 10}, {1800, 10},
     {300, 20}, {150, 50}, 
 
-    // --- PHASE 6: IDLE HUM (Stabilizing) ---
+
     {98, 50}, {100, 50}, {102, 50}, {100, 50},
     {95, 50}, {100, 50}, {105, 50}, {100, 50},
 
-    // --- PHASE 7: POWER DOWN (Retraction) ---
     {90, 50}, {80, 50}, {70, 50}, 
     {60, 40}, {50, 40}, {40, 30}, 
     {30, 30}, {20, 20}, {10, 20},
-    {0, 500} // Silence
+    {0, 500} 
 };
 
 // Light saber turing off
@@ -143,7 +149,6 @@ static int main_theme[][2] = {
     {698, 250}, {659, 250}, {698, 250}, {587, 2000} 
 };
 
-// D. Victory Song (rocky theme)
 // Format: {Frequency (Hz), Duration (ms)}
 static int victory_song[][2] = {
     
@@ -231,20 +236,42 @@ static int count_game_over = 0;
 
 
 
-// --- 3. Hardware Helper (Private) ---
+/* --- 3. Hardware Helper  -
+ * Purpose: 
+ * Manipulates the Timer Registers to generate a specific audio frequency.
+ * It translates a musical note (Hz) into hardware Timer Counts
+ * How it works:
+ * 1. FREQUENCY: Controlled by the ARR
+ * - The Timer counts up to ARR and then resets.
+ * - Smaller ARR = Faster Reset = Higher Pitch.
+ * - Math: (Timer Clock / Target Freq) - 1.
+ * 2. VOLUME (Loudness): Controlled by the CCR
+ * - This determines the "Duty Cycle" (how long the pin stays HIGH per cycle).
+*/
 static void setHardwareTone(uint32_t freq) {
+    // Map pointers to the physical memory addresses of the Timer 2 registers
     uint32_t * arr_reg = (uint32_t*)TIM2_AUTORELOAD_REGISTER;
     uint32_t * ccr_reg = (uint32_t*)TIM2_COMPARE_2_REGISTER;
-    
+
+    // Case 1: Silence (Rest)
     if (freq == 0) {
+        // Set Duty Cycle to 0. The Pin stays LOW (0V). No sound is produced.
         *ccr_reg = 0; 
-    } else {
+    }
+    // Case 2: Play a Note 
+    else {
         // Assumes 1MHz Timer Clock. Adjust 1000000 if Prescaler changes.
         uint32_t new_arr = (1000000 / freq) - 1; 
-        *arr_reg = new_arr;        
+        *arr_reg = new_arr; 
+        // --- Volume Calculation ---
+        // Set the switch-off point. 
+        // / 2 = 50% Duty Cycle (Loudest)
+        // / 4 = 25% Duty Cycle
+        // / 8 = 12.5% Duty Cycle (Quieter/Softer tone)       
         *ccr_reg = new_arr / 8; // 4 for high volume, 8 for lower volume (hopefully)
     }
 }
+// TIMER 11 hardware tone set-up
 static void setHardwareTone_TIM11(uint32_t freq) {
     uint32_t * arr_reg_2 = (uint32_t*)TIM11_AUTORELOAD_REGISTER;
     uint32_t * ccr_reg_2 = (uint32_t*)TIM11_CCR1_REGISTER;
@@ -261,7 +288,7 @@ static void setHardwareTone_TIM11(uint32_t freq) {
 
 // --- 4. Public Functions ---
 
-// Call this when entering a new State to ensure songs start at the beginning
+// Ensure songs start at the beginning by starting at the begging of each array
 void resetMusicCounter(void) {
     count_main = 0;
     count_imperial = 0;// count for imperial
@@ -272,7 +299,7 @@ void resetMusicCounter(void) {
     count_game_over =0;
 }
 
-// Call this to silence the speaker immediately
+// Stops audio
 void stopAudio(void) {
 
     uint32_t * ccr_reg_2 = (uint32_t*)TIM11_CCR1_REGISTER;
@@ -283,7 +310,7 @@ void stopAudio(void) {
 
 
 
-// --- Playback Functions (Return duration in ms) ---
+// --- Playback Functions 
 
 uint16_t playMainTheme(void) {
     if (count_main >= COUNT_MAIN) {
