@@ -67,6 +67,7 @@ void EXTI9_5_IRQHandler(void)
         {
             pressedTime = currentTime;
             enqueue_event(BUTTON_PRESSED, 1, 1);
+            printf("what the heck\n");
         } 
     }
     

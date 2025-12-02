@@ -176,6 +176,7 @@ void state_machine(event newevent){
 
             if (newevent.type == BUTTON_PRESSED){
 
+                printf("helo");
                 current_state.type = SABER_INITIALIZE;
 
                 // turn off led strip (don't want led strip to affect phototransistor readings)
