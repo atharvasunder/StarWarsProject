@@ -20,6 +20,8 @@
 #include "global_time.h"
 #include "hardware_stm_timer2_and_11.h"
 #include "audio.h"
+#include "swing_detector.h"
+
 #include <stdbool.h>
 
 // Define the global variables
@@ -64,14 +66,14 @@ rgb_color correct_swing_color;
 rgb_color wrong_swing_color;
 
 // game ground truths for keeping score
-// 1: up, 2: down, 3: left, 4: right
-uint16_t swing_directions_gt[6] = {1,1,4,1,3,2};
+// 3: up, 4: down, 2: left, 1: right
+uint16_t swing_directions_gt[6] = {3,3,3,3,3,3};
 uint8_t current_swing_number = 0;
 uint8_t total_swings = 6;
 uint8_t score = 0;
 
 uint16_t swing_directions_game[6] = {0,0,0,0,0,0};  // 0: undetermined swing direction
-
+uint8_t imu_init_flag = 0;
 
 void init_state_machine(void) {
 
@@ -115,6 +117,8 @@ void init_state_machine(void) {
         init_led_strip();
 
     /* BLADE */
+        // for imu swing detection
+        setup_swing_detector();
 
 
     /* TARGET BOARD */
@@ -555,6 +559,7 @@ void state_machine(event newevent){
                     idle_start_flag = 0;
                     end_of_game_flag = 0;
                     current_swing_number = 0;
+                    imu_init_flag = 0;
                     
 
                     reset_game_time(); 
@@ -591,6 +596,8 @@ void state_machine(event newevent){
                 }
 
                 else if (newevent.param1 ==  4){    // time to swing
+
+                    imu_init_flag = 0;  // set this flag to initialize the imu every swing
 
                     if (game_time == 0){
                         // set current state to IN_GAME_PARRYING by enqueueing GO_TO_PARRYING event
@@ -649,7 +656,13 @@ void state_machine(event newevent){
             }
             break;
 
-        case IN_GAME_PARRYING:  
+        case IN_GAME_PARRYING:
+
+            if (imu_init_flag == 0){
+                observe_swing();
+                enqueue_event(START_TIMEOUT, 40, 30);
+                imu_init_flag = 1;
+            }  
             // if (newevent.type == BUTTON_PRESSED){
             //     current_state.type = SABER_TURN_OFF;
 
@@ -708,6 +721,13 @@ void state_machine(event newevent){
 
                 }
 
+                else if (newevent.param1 == 40){
+                    // update orientation estimate
+                    observe_swing();
+                    // set timeout before next update
+                    enqueue_event(START_TIMEOUT, 40, 30);
+                }
+
                 else if (newevent.param1 ==  2){   // param1 = 1 denotes the timeout is for the led strip, param1 = 2: for speaker
                     
                     // play speaker (send 1 set of bits before the next timeout)
@@ -723,18 +743,25 @@ void state_machine(event newevent){
                     // turn off vibration motor
                     clear_vibration_motor();
                     
-                    // check imu for swing direction? @Gun implement buffer stuff
-                    // not sure if it goes in here tho, maybe we keep populating the buffer
-                    // while the vibration motor runs? and use this event to finalize the swing direction
+                    // check imu for swing direction? we keep integrating angle swung
+                    // while the vibration motor runs, and use this event to finalize the swing direction
+                    SwingResult dir = get_swing_direction();
 
-                    // for now implemented as all swings successful, to be changed
-                    swing_directions_game[current_swing_number] = 1;
+                    printf("Direction of gt %d\n",swing_directions_gt[current_swing_number]);
+
+                    if (dir.swing_detected){
+                        swing_directions_game[current_swing_number] = dir.direction;
+                        printf("Direction of swing %d\n",dir.direction);
+                    }
+
+                    else{
+                        swing_directions_game[current_swing_number] = 0;
+                    }
 
                     // enqueue event for correct or wrong swing direction
                     if (swing_directions_game[current_swing_number] == swing_directions_gt[current_swing_number]){
                         enqueue_event(CORRECT_SWING_DIRECTION, 0, 0);
                         score = score + 1;
-                        
                     }
 
                     else{
@@ -750,7 +777,7 @@ void state_machine(event newevent){
 
                 // start speaker sounds, vibrations, light blinking with respective timeouts
                 // based on whether player won or lost.
-                if (score > 3){
+                if (score > 1){
 
                     // start speaker rocky balboa song
                     resetMusicCounter();
