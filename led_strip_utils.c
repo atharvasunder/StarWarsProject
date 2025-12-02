@@ -147,16 +147,16 @@ void get_led_message(neopixel_led* leds)
     // debugprint(msg_idx);
 }
 
-void delay(void){
-    // variables used to create time pauses
-    uint32_t i, j, k;
+// void delay(void){
+//     // variables used to create time pauses
+//     uint32_t i, j, k;
 
-    for (i = 0; i < 1000000; i++)
-    {
-        for (k = 0; k < 1000000; k++)
-            j = j + 1;   // tiny delay
-    }
-}
+//     for (i = 0; i < 1000000; i++)
+//     {
+//         for (k = 0; k < 1000000; k++)
+//             j = j + 1;   // tiny delay
+//     }
+// }
 
 void delay_long(void){
     // variables used to create time pauses

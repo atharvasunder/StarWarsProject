@@ -1,12 +1,12 @@
 /**
   ******************************************************************************
-  * @file    nucleo_led.c 
-  * @author  mortamar@andrew.cmu.edu
+  * @file    led_events.c 
+  * @author  Group 3 (dseong, paussava, vkenkre, asramdas, kadikpet)
   * @version 1.0
-  * @date    Septembr-2021
-  * @brief   Controls the LED's on the nucleo board
+  * @date    November-2025
+  * @brief   Contains functions to manipulate and service the events queue
   ******************************************************************************
-  */
+*/
 
 #include "hardware_stm_gpio.h"
 #include "gummy_led_utils.h"
