@@ -23,8 +23,8 @@
 Serial pc(USBTX, USBRX);
 /* TEMPORARY */
 
-// #define buttontest
-#define mama
+#define buttontest
+// #define mama
 
 #ifdef buttontest
 int main (void)

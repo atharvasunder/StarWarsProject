@@ -74,9 +74,6 @@ uint16_t swing_directions_game[6] = {0,0,0,0,0,0};  // 0: undetermined swing dir
 
 
 void init_state_machine(void) {
-
-    /* PLEASE COMMENT EXACTLY WHAT PIN, TIMER, ADC ETC YOU ARE INITIALIZING */
-
     /* GENERAL */
 
         // initialize and start timers
@@ -84,9 +81,6 @@ void init_state_machine(void) {
     /* GENERAL */
 
     /* HILT */
-
-    // initialize pins for gummy LEDs and phototransistor circuit output as input to nucleo
-    // maybe an ADC here if we are not going to use a schmitt trigger?
         // initialize LEDs
         init_LED_Blue();
         init_LED_Red();
