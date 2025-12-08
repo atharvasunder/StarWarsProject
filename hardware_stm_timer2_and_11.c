@@ -52,8 +52,6 @@ void initTimer11_CH1_PWM( void )
 
 
     /* 1. Set Timer Frequency (Time Base) */
-    // Note: TIM11 is on APB2. Check if APB2 is faster than APB1 (TIM2).
-    // If APB2 is 2x faster, double this prescaler to keep the same sound pitch.
     reg_pointer = (uint32_t*)TIM11_PSC_REGISTER;
     *reg_pointer = 83; 
     reg_pointer = (uint32_t*)TIM11_ARR_REGISTER;

@@ -68,6 +68,7 @@
 #define COUNT_ROCKY     (sizeof(victory_song) / sizeof(victory_song[0]))
 #define COUNT_GAMEOVER  (sizeof(mario_game_over) / sizeof(mario_game_over[0]))
 
+
 // Tempo Dividers (Lower = Slower, Higher = Faster)
 #define TEMPO_MAIN          1  
 #define TEMPO_IMPERIAL      1.0
@@ -223,6 +224,11 @@ static int LED_scan[][2] = {
     {2000, 190} // High pitch tone
          // Tiny silence buffer 
 };
+// Timer bips
+static int BIP_count[][2] = {
+    {2000, 95} // High pitch tone
+         // Tiny silence buffer 
+};
 
 
 // State Counters (Separate for each song)
@@ -233,6 +239,8 @@ static int count_scan = 0;
 static int count_saber_off = 0;
 static int count_rocky = 0;
 static int count_game_over = 0;
+static int count_bip = 0;
+static int bips_played_in_sequence = 0;
 
 
 
@@ -260,7 +268,7 @@ static void setHardwareTone(uint32_t freq) {
     }
     // Case 2: Play a Note 
     else {
-        // Assumes 1MHz Timer Clock. Adjust 1000000 if Prescaler changes.
+       
         uint32_t new_arr = (1000000 / freq) - 1; 
         *arr_reg = new_arr; 
         // --- Volume Calculation ---
@@ -279,7 +287,7 @@ static void setHardwareTone_TIM11(uint32_t freq) {
     if (freq == 0) {
         *ccr_reg_2 = 0; 
     } else {
-        // Assumes 1MHz Timer Clock. Adjust 1000000 if Prescaler changes.
+        
         uint32_t new_arr = (1000000 / freq) - 1; 
         *arr_reg_2 = new_arr;        
         *ccr_reg_2 = new_arr / 8; // 4 for high volume, 8 for lower volume (hopefully)
@@ -297,6 +305,9 @@ void resetMusicCounter(void) {
     count_saber_off = 0;
     count_rocky = 0;
     count_game_over =0;
+    // Bip counters
+    count_bip = 0;
+    bips_played_in_sequence = 0;
 }
 
 // Stops audio
@@ -408,6 +419,38 @@ uint16_t playGameOVer(void) {
     count_game_over++;
 
     return (uint16_t)(duration / TEMPO_GAME_OVER);
+}
+
+uint16_t playTimeTeller(int total_seconds) {
+    // 1. Calculate how many bips we need
+    int target_bips = total_seconds / 5;
+
+    // If time is less than 5s, or we finished the sequence, stop.
+    if (target_bips == 0 || bips_played_in_sequence >= target_bips) {
+        bips_played_in_sequence = 0; // Reset for next safety
+        return 0; 
+    }
+
+    // 2. Get Note Data from the existing Scanner Bip array
+    int freq = BIP_count[count_bip][0];
+    int duration = BIP_count[count_bip][1];
+
+    // 3. Play the Tone
+    setHardwareTone(freq); // Using your TIM11 function
+    count_bip++;
+
+    // 4. Check if we reached the end of the "Bip" array
+    if (count_bip >= COUNT_SCAN) {
+        count_bip = 0;              // Reset array to start
+        bips_played_in_sequence++;  // Mark one bip as complete
+        
+        // 5. Inject a Gap
+        // The array only has 10ms silence. We override this to 200ms
+        // so the user hears distinct counts: "Beep... Beep..."
+        return 200; 
+    }
+
+    return (uint16_t)duration;
 }
 
 void init_speaker1(void){
