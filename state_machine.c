@@ -67,7 +67,7 @@ rgb_color wrong_swing_color;
 
 // game ground truths for keeping score
 // 3: up, 4: down, 2: left, 1: right
-uint16_t swing_directions_gt[6] = {3,3,3,3,3,3};
+uint16_t swing_directions_gt[6] = {1,1,1,1,1,1};
 uint8_t current_swing_number = 0;
 uint8_t total_swings = 6;
 uint8_t score = 0;
