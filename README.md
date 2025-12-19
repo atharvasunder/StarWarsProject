@@ -1,6 +1,12 @@
 # Return of the Jediodes
 
-![Jediode workshop](img/Jediode.jpg)
+## Watch our videos
+
+### Product Video
+[![Product Video](https://img.youtube.com/vi/UW9I1-rcZVI/maxresdefault.jpg)](https://www.youtube.com/watch?v=UW9I1-rcZVI&feature=youtu.be)
+
+### Explanation Video
+[![Explanation Video](https://img.youtube.com/vi/3KDqaMYb6dk/maxresdefault.jpg)](https://www.youtube.com/watch?v=3KDqaMYb6dk&feature=youtu.be)
 
 A customizable interactive Star Wars themed lightsaber experience with lightsaber building, dueling capabilities.
 
@@ -8,11 +14,6 @@ A customizable interactive Star Wars themed lightsaber experience with lightsabe
 Atharva Ramdas, David Seong, Korell Adikpeto, Pubordee Aussavavirojekul, Vrishabh Kenkre
 
 **Course:** Advanced Mechatronic Design 16-878, Carnegie Mellon University  
-
-## Watch our videos
-
-- **Product Video**: [Watch on YouTube](https://www.youtube.com/watch?v=UW9I1-rcZVI&feature=youtu.be)
-- **Explanation Video**: [Watch on YouTube](https://www.youtube.com/watch?v=3KDqaMYb6dk&feature=youtu.be)
 
 ## Table of Contents
 - [Introduction](#introduction)
