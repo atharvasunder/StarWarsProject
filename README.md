@@ -418,7 +418,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Acknowledgments
 
-- **Instructor & Teaching Staff**: Melissa Orta Martinez, Rajiv Joshi, and Kiran Marquez for guidance
+- **Instructor & Teaching Staff**: Melissa Orta Martinez, Arni Lehto, Rajiv Joshi, and Kiran Marquez for guidance
 - **Star Wars/Lucasfilm**: Inspiration for theme and design
 
 ## Contact
